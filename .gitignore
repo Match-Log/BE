@@ -27,7 +27,6 @@ build/
 *.zip
 *.tar.gz
 *.rar
-!gradle/wrapper/gradle-wrapper.jar
 
 # Virtual machine crash logs
 hs_err_pid*
@@ -61,11 +60,21 @@ out/
 /nbdist/
 /.nb-gradle/
 
-# VS Code
+# IDE
+.settings/
 .vscode/
 
-# macOS
+# OS
 .DS_Store
+Thumbs.db
 
 # Env
 .env
+*.env
+.env.*
+
+redis-data/
+data/
+
+CLAUDE.md
+.claude/
