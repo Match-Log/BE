@@ -1,0 +1,66 @@
+# 팀 삭제
+
+HTTP 메서드: DELETE
+HTTP 상태코드: 204 No Content, 401 Unauthorized, 403 Forbidden, 404 Not Found, 500 Server Error
+URL Path (https:// 없으면 FE와 BE 인스턴스 주소): /api/v1/teams/{teamId}
+버전: V1
+분류: Team
+엑세스 토큰 필요: O
+
+# Request
+
+## Headers
+
+- `Content-Type: application/json`
+- `Accept: application/json`
+- `Authorization: Bearer {accessToken}`
+
+Body 없음.
+
+# Response
+
+## 204 No Content
+
+## 401 Unauthorized
+
+```json
+{
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "인증이 필요합니다."
+  }
+}
+```
+
+## 403 Forbidden
+
+```json
+{
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "팀 삭제 권한이 없습니다. (ADMIN만 가능)"
+  }
+}
+```
+
+## 404 Not Found
+
+```json
+{
+  "error": {
+    "code": "TEAM_NOT_FOUND",
+    "message": "존재하지 않는 팀입니다."
+  }
+}
+```
+
+## 500 Internal Server Error
+
+```json
+{
+  "error": {
+    "code": "INTERNAL_SERVER_ERROR",
+    "message": "서버 내부에 오류가 발생했습니다."
+  }
+}
+```
