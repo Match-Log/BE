@@ -1,4 +1,4 @@
-# MatchLog - BE
+# BE
 
 ## 브랜치 전략
 - main: 배포용
