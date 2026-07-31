@@ -1,0 +1,167 @@
+Table USER {
+  id bigint [pk, increment]
+  email varchar(100) [unique, not null]
+  password varchar(255) [null, note: '소셜 로그인 시 null 가능']
+  name varchar(50) [not null]
+  profileImage varchar(500) [null]
+  provider varchar(20) [null, note: 'LOCAL / GOOGLE / KAKAO']
+  // provider -> 로그인 수단
+  createdAt datetime [not null]
+  updatedAt datetime [not null]
+}
+
+Table PLAYER {
+  id bigint [pk, increment]
+  userId bigint [not null, ref: > USER.id]
+  number int [null]
+  mainPosition varchar(10) [null]
+  subPosition varchar(10) [null]
+  birthDate date [null]
+  height int [null, note: 'cm']
+  weight int [null, note: 'kg']
+  preferredFoot varchar(5) [null]
+  // leftFoot - rightFoot 이런 식으로 분개 시켜도 될 것 같긴한데
+  career text [null]
+}
+
+Table TEAM {
+  id bigint [pk, increment]
+  name varchar(100) [not null]
+  teamImage varchar(500) [null]
+  region varchar(100) [null]
+  foundedYear int [null]
+  homeGround varchar(200) [null]
+  inviteCode varchar(6) [unique, not null]
+  // manager가 승낙/거절 기능
+  createdAt datetime [not null]
+  updatedAt datetime [not null]
+}
+
+Table PARTICIPATIONS {
+  id bigint [pk, increment]
+  playerId bigint [not null, ref: > PLAYER.id]
+  teamId bigint [not null, ref: > TEAM.id]
+  role varchar(20) [not null, note: 'MANAGER / PLAYER']
+  joinedAt datetime [not null]
+  // 전담 키커
+  isCaptain boolean [default: false]
+  isPkTaker boolean [default: false]
+  isFkRight boolean [default: false]
+  isFkLeft boolean [default: false]
+  isCkRight boolean [default: false]
+  isCkLeft boolean [default: false]
+}
+
+Table MATCH {
+  id bigint [pk, increment]
+  teamId bigint [not null, ref: > TEAM.id]
+  opponent varchar(100) [not null]
+  // 상대 팀이 matchLog 사용하는 경우 팀 ID를 집어넣을 수도 있음 고려
+  matchDate datetime [not null]
+  location varchar(200) [null]
+  homeAway varchar(10) [not null, note: 'HOME / AWAY']
+  matchType varchar(20) [not null, note: 'SOCCER/FOOTBALL']
+  // matchType이 FOOTBALL인 경우에 컴포넌트로 분기해서 몇대몇 풋살인지 알 수 있도록
+  scoreHome int [null]
+  scoreAway int [null]
+  isFinished boolean [default: false]
+  createdAt datetime [not null]
+  updatedAt datetime [not null]
+}
+
+Table VOTE {
+  id bigint [pk, increment]
+  matchId bigint [not null, ref: > MATCH.id]
+  playerId bigint [not null, ref: > PLAYER.id]
+  status varchar(10) [not null, note: 'ATTEND / PENDING / ABSENT']
+  votedAt datetime [not null]
+}
+
+Table LINEUP {
+  id bigint [pk, increment]
+  matchId bigint [not null, ref: > MATCH.id]
+  quarter int [not null, note: '1 / 2 / 3 / 4']
+  formation varchar(20) [not null, note: '4-2-3-1 / 4-3-3 등']
+  createdAt datetime [not null]
+  updatedAt datetime [not null]
+}
+
+Table LINEUP_SPOT {
+  id bigint [pk, increment]
+  lineupId bigint [not null, ref: > LINEUP.id]
+  playerId bigint [not null, ref: > PLAYER.id]
+  position varchar(10) [not null, note: 'GK / LB / CB / RB 등']
+  isStarter boolean [not null, note: 'true: 선발 / false: 후보']
+}
+
+Table TEAM_TACTIC {
+  id bigint [pk, increment]
+  matchId bigint [not null, ref: > MATCH.id]
+  coachId bigint [not null, ref: > PLAYER.id]
+  content text [not null]
+  createdAt datetime [not null]
+  updatedAt datetime [not null]
+}
+
+Table PERSONAL_TACTIC {
+  id bigint [pk, increment]
+  matchId bigint [not null, ref: > MATCH.id]
+  playerId bigint [not null, ref: > PLAYER.id]
+  coachId bigint [not null, ref: > PLAYER.id]
+  content text [not null]
+  createdAt datetime [not null]
+  updatedAt datetime [not null]
+}
+
+Table TEAM_FEEDBACK {
+  id bigint [pk, increment]
+  matchId bigint [not null, ref: > MATCH.id]
+  coachId bigint [not null, ref: > PLAYER.id]
+  content text [not null]
+  createdAt datetime [not null]
+  updatedAt datetime [not null]
+}
+
+Table PERSONAL_FEEDBACK {
+  id bigint [pk, increment]
+  matchId bigint [not null, ref: > MATCH.id]
+  playerId bigint [not null, ref: > PLAYER.id]
+  coachId bigint [not null, ref: > PLAYER.id]
+  rating int [null, note: '1 ~ 10']
+  pros text [null]
+  cons text [null]
+  tags varchar(500) [null, note: 'JSON 배열로 저장']
+  isVisible boolean [default: true]
+  createdAt datetime [not null]
+  updatedAt datetime [not null]
+}
+
+Table PLAYER_STAT {
+  id bigint [pk, increment]
+  matchId bigint [not null, ref: > MATCH.id]
+  playerId bigint [not null, ref: > PLAYER.id]
+  // 공통
+  goals int [default: 0]
+  assists int [default: 0]
+  shots int [default: 0]
+  // GK 전용
+  saves int [null]
+  goalsConceded int [null]
+  cleanSheet boolean [null]
+  createdAt datetime [not null]
+  updatedAt datetime [not null]
+}
+
+Table DOCUMENT {
+  id bigint [pk, increment]
+  teamId bigint [not null, ref: > TEAM.id]
+  playerId bigint [not null, ref: > PLAYER.id]
+  matchId bigint [not null, ref: > MATCH.id]
+  isExpendedDoucument boolean [not null]
+  // 게시물 게시판 고정유무
+  documentType varchar(10) [not null, note: 'VOTE / NOTE']
+  title varchar(200) [not null]
+  content text [not null]
+  createdAt datetime [not null]
+  updatedAt datetime [not null]
+}
