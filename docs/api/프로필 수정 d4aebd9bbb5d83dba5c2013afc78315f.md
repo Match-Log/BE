@@ -20,14 +20,14 @@ URL Path (https:// 없으면 FE와 BE 인스턴스 주소): /api/v1/users/{userI
 ```json
 {
   "name": "임준혁",
-  "avatarUrl": "https://storage.example.com/avatars/1.jpg"
+  "profileImage": "https://storage.example.com/avatars/1.jpg"
 }
 ```
 
 | 필드 | 타입 | 필수 | 설명 |
 | --- | --- | --- | --- |
 | name | string | ❌ | 2~50자 |
-| avatarUrl | string | ❌ | 프로필 사진 URL |
+| profileImage | string | ❌ | 프로필 사진 URL |
 
 # Response
 
@@ -37,7 +37,7 @@ URL Path (https:// 없으면 FE와 BE 인스턴스 주소): /api/v1/users/{userI
 {
   "userId": 1,
   "name": "임준혁",
-  "avatarUrl": "https://storage.example.com/avatars/1.jpg",
+  "profileImage": "https://storage.example.com/avatars/1.jpg",
   "updatedAt": "2025-03-01T00:00:00"
 }
 ```

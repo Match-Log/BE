@@ -13,15 +13,14 @@ Table USER {
 Table PLAYER {
   id bigint [pk, increment]
   userId bigint [not null, ref: > USER.id]
-  number int [null]
-  mainPosition varchar(10) [null]
-  subPosition varchar(10) [null]
   birthDate date [null]
   height int [null, note: 'cm']
   weight int [null, note: 'kg']
   preferredFoot varchar(5) [null]
   // leftFoot - rightFoot 이런 식으로 분개 시켜도 될 것 같긴한데
   career text [null]
+  createdAt datetime [not null]
+  updatedAt datetime [not null]
 }
 
 Table TEAM {
@@ -42,7 +41,11 @@ Table PARTICIPATIONS {
   playerId bigint [not null, ref: > PLAYER.id]
   teamId bigint [not null, ref: > TEAM.id]
   role varchar(20) [not null, note: 'MANAGER / PLAYER']
+  number int [null]
+  mainPosition varchar(10) [null]
+  subPosition varchar(10) [null]
   joinedAt datetime [not null]
+  updatedAt datetime [not null]
   // 전담 키커
   isCaptain boolean [default: false]
   isPkTaker boolean [default: false]
@@ -127,6 +130,7 @@ Table PERSONAL_FEEDBACK {
   matchId bigint [not null, ref: > MATCH.id]
   playerId bigint [not null, ref: > PLAYER.id]
   coachId bigint [not null, ref: > PLAYER.id]
+  content text [null]
   rating int [null, note: '1 ~ 10']
   pros text [null]
   cons text [null]
@@ -156,8 +160,8 @@ Table DOCUMENT {
   id bigint [pk, increment]
   teamId bigint [not null, ref: > TEAM.id]
   playerId bigint [not null, ref: > PLAYER.id]
-  matchId bigint [not null, ref: > MATCH.id]
-  isExpendedDoucument boolean [not null]
+  matchId bigint [null, ref: > MATCH.id, note: 'NOTE 타입은 경기 미연결 가능']
+  isExpendedDocuument boolean [not null]
   // 게시물 게시판 고정유무
   documentType varchar(10) [not null, note: 'VOTE / NOTE']
   title varchar(200) [not null]

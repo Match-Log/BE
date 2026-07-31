@@ -38,7 +38,7 @@ Body 없음.
 {
   "error": {
     "code": "FORBIDDEN",
-    "message": "팀 삭제 권한이 없습니다. (ADMIN만 가능)"
+    "message": "팀 삭제 권한이 없습니다. (MANAGER만 가능)"
   }
 }
 ```
