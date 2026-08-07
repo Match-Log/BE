@@ -47,8 +47,8 @@ public class Document extends BaseTimeEntity {
     @JoinColumn(name = "matchId")
     private Match match;
 
-    @Column(name = "isExpendedDocuument", nullable = false)
-    private boolean isExpendedDocument;
+    @Column(name = "isPinned", nullable = false)
+    private boolean isPinned;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
@@ -61,7 +61,7 @@ public class Document extends BaseTimeEntity {
     private String content;
 
     public static Document create(Team team, Player player, Match match, DocumentType documentType, String title,
-            String content, boolean isExpendedDocument) {
+            String content, boolean isPinned) {
         return Document.builder()
                 .team(team)
                 .player(player)
@@ -69,7 +69,7 @@ public class Document extends BaseTimeEntity {
                 .documentType(documentType)
                 .title(title)
                 .content(content)
-                .isExpendedDocument(isExpendedDocument)
+                .isPinned(isPinned)
                 .build();
     }
 
@@ -83,10 +83,10 @@ public class Document extends BaseTimeEntity {
     }
 
     public void pin() {
-        this.isExpendedDocument = true;
+        this.isPinned = true;
     }
 
     public void unpin() {
-        this.isExpendedDocument = false;
+        this.isPinned = false;
     }
 }

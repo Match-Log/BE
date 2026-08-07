@@ -19,5 +19,5 @@ public class CreateDocumentRequestDto {
     private String content;
 
     @Builder.Default
-    private boolean isExpendedDocument = false;
+    private boolean isPinned = false;
 }

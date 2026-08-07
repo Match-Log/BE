@@ -7,5 +7,6 @@ import java.util.Optional;
 
 public interface TeamRepository extends JpaRepository<Team, Long> {
 
+    // [POST /api/v1/teams/join] 초대코드로 팀 조회 — 없으면 Optional.empty()
     Optional<Team> findByInviteCode(String inviteCode);
 }

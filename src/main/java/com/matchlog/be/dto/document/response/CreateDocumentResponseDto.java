@@ -23,7 +23,7 @@ public class CreateDocumentResponseDto {
     private DocumentType documentType;
     private String title;
     private String content;
-    private boolean isExpendedDocument;
+    private boolean isPinned;
     private Long matchId;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
@@ -37,7 +37,7 @@ public class CreateDocumentResponseDto {
                 .documentType(document.getDocumentType())
                 .title(document.getTitle())
                 .content(document.getContent())
-                .isExpendedDocument(document.isExpendedDocument())
+                .isPinned(document.isPinned())
                 .matchId(document.getMatch() != null ? document.getMatch().getId() : null)
                 .createdAt(document.getCreatedAt())
                 .build();
