@@ -1,11 +1,8 @@
 package com.matchlog.be.domain.participation;
 
-import java.time.LocalDateTime;
-
 import com.matchlog.be.constant.participation.ParticipationRole;
 import com.matchlog.be.domain.player.Player;
 import com.matchlog.be.domain.team.Team;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -108,8 +106,13 @@ public class Participation {
         touch();
     }
 
-    public void assignKickerRoles(boolean isCaptain, boolean isPkTaker, boolean isFkRight, boolean isFkLeft,
-            boolean isCkRight, boolean isCkLeft) {
+    public void assignKickerRoles(
+            boolean isCaptain,
+            boolean isPkTaker,
+            boolean isFkRight,
+            boolean isFkLeft,
+            boolean isCkRight,
+            boolean isCkLeft) {
         this.isCaptain = isCaptain;
         this.isPkTaker = isPkTaker;
         this.isFkRight = isFkRight;

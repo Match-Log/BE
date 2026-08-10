@@ -1,11 +1,10 @@
 package com.matchlog.be.repository;
 
 import com.matchlog.be.domain.lineup.LineupSpot;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.util.List;
 
 public interface LineupSpotRepository extends JpaRepository<LineupSpot, Long> {
 

@@ -5,7 +5,6 @@ import com.matchlog.be.domain.common.BaseTimeEntity;
 import com.matchlog.be.domain.match.Match;
 import com.matchlog.be.domain.player.Player;
 import com.matchlog.be.domain.team.Team;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -60,8 +59,14 @@ public class Document extends BaseTimeEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    public static Document create(Team team, Player player, Match match, DocumentType documentType, String title,
-            String content, boolean isPinned) {
+    public static Document create(
+            Team team,
+            Player player,
+            Match match,
+            DocumentType documentType,
+            String title,
+            String content,
+            boolean isPinned) {
         return Document.builder()
                 .team(team)
                 .player(player)

@@ -1,10 +1,8 @@
 package com.matchlog.be.dto.document.response;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.matchlog.be.domain.document.Document;
-
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,7 +18,10 @@ public class UpdateDocumentResponseDto {
     private String title;
     private String content;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+    @JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd'T'HH:mm:ss",
+            timezone = "Asia/Seoul")
     private LocalDateTime updatedAt;
 
     public static UpdateDocumentResponseDto from(Document document) {

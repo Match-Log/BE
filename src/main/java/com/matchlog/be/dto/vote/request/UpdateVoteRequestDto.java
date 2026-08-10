@@ -1,7 +1,6 @@
 package com.matchlog.be.dto.vote.request;
 
 import com.matchlog.be.constant.vote.VoteStatus;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

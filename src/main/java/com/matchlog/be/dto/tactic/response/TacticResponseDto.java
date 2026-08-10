@@ -1,11 +1,9 @@
 package com.matchlog.be.dto.tactic.response;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.matchlog.be.domain.tactic.PersonalTactic;
 import com.matchlog.be.domain.tactic.TeamTactic;
-
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,7 +21,10 @@ public class TacticResponseDto {
     private Long playerId;
     private String content;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+    @JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd'T'HH:mm:ss",
+            timezone = "Asia/Seoul")
     private LocalDateTime updatedAt;
 
     public static TacticResponseDto from(TeamTactic tactic) {

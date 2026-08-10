@@ -25,19 +25,17 @@ public class ErrorResponse {
 
     public static ErrorResponse of(ErrorCode errorCode) {
         return ErrorResponse.builder()
-                .error(ErrorDetail.builder()
-                        .code(errorCode.getCode())
-                        .message(errorCode.getMessage())
-                        .build())
+                .error(
+                        ErrorDetail.builder()
+                                .code(errorCode.getCode())
+                                .message(errorCode.getMessage())
+                                .build())
                 .build();
     }
 
     public static ErrorResponse of(String code, String message) {
         return ErrorResponse.builder()
-                .error(ErrorDetail.builder()
-                        .code(code)
-                        .message(message)
-                        .build())
+                .error(ErrorDetail.builder().code(code).message(message).build())
                 .build();
     }
 }

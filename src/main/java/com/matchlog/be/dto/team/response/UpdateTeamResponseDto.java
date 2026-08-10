@@ -1,10 +1,8 @@
 package com.matchlog.be.dto.team.response;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.matchlog.be.domain.team.Team;
-
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +17,10 @@ public class UpdateTeamResponseDto {
     private Long teamId;
     private String name;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+    @JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd'T'HH:mm:ss",
+            timezone = "Asia/Seoul")
     private LocalDateTime updatedAt;
 
     public static UpdateTeamResponseDto from(Team team) {

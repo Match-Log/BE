@@ -1,7 +1,6 @@
 package com.matchlog.be.dto.lineup.response;
 
 import com.matchlog.be.domain.lineup.LineupSpot;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

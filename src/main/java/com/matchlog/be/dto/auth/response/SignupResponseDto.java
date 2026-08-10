@@ -1,11 +1,9 @@
 package com.matchlog.be.dto.auth.response;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.matchlog.be.constant.user.Provider;
 import com.matchlog.be.domain.user.User;
-
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,7 +21,10 @@ public class SignupResponseDto {
     private String profileImage;
     private Provider provider;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+    @JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd'T'HH:mm:ss",
+            timezone = "Asia/Seoul")
     private LocalDateTime createdAt;
 
     public static SignupResponseDto from(User user) {

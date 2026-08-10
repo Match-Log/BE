@@ -1,11 +1,8 @@
 package com.matchlog.be.domain.vote;
 
-import java.time.LocalDateTime;
-
 import com.matchlog.be.constant.vote.VoteStatus;
 import com.matchlog.be.domain.match.Match;
 import com.matchlog.be.domain.player.Player;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

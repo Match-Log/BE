@@ -1,7 +1,6 @@
 package com.matchlog.be.domain.team;
 
 import com.matchlog.be.domain.common.BaseTimeEntity;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -43,8 +42,13 @@ public class Team extends BaseTimeEntity {
     @Column(nullable = false, unique = true, length = 6)
     private String inviteCode;
 
-    public static Team create(String name, String teamImage, String region, Integer foundedYear,
-            String homeGround, String inviteCode) {
+    public static Team create(
+            String name,
+            String teamImage,
+            String region,
+            Integer foundedYear,
+            String homeGround,
+            String inviteCode) {
         return Team.builder()
                 .name(name)
                 .teamImage(teamImage)
@@ -55,7 +59,8 @@ public class Team extends BaseTimeEntity {
                 .build();
     }
 
-    public void changeInfo(String name, String teamImage, String region, Integer foundedYear, String homeGround) {
+    public void changeInfo(
+            String name, String teamImage, String region, Integer foundedYear, String homeGround) {
         if (name != null) {
             this.name = name;
         }

@@ -3,7 +3,6 @@ package com.matchlog.be.domain.feedback;
 import com.matchlog.be.domain.common.BaseTimeEntity;
 import com.matchlog.be.domain.match.Match;
 import com.matchlog.be.domain.player.Player;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -43,11 +42,7 @@ public class TeamFeedback extends BaseTimeEntity {
     private String content;
 
     public static TeamFeedback create(Match match, Player coach, String content) {
-        return TeamFeedback.builder()
-                .match(match)
-                .coach(coach)
-                .content(content)
-                .build();
+        return TeamFeedback.builder().match(match).coach(coach).content(content).build();
     }
 
     public void updateContent(String content) {

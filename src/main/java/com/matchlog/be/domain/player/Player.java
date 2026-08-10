@@ -1,11 +1,8 @@
 package com.matchlog.be.domain.player;
 
-import java.time.LocalDate;
-
 import com.matchlog.be.constant.player.PreferredFoot;
 import com.matchlog.be.domain.common.BaseTimeEntity;
 import com.matchlog.be.domain.user.User;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -17,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -52,8 +50,13 @@ public class Player extends BaseTimeEntity {
     @Column(columnDefinition = "TEXT")
     private String career;
 
-    public static Player create(User user, LocalDate birthDate, Integer height, Integer weight,
-            PreferredFoot preferredFoot, String career) {
+    public static Player create(
+            User user,
+            LocalDate birthDate,
+            Integer height,
+            Integer weight,
+            PreferredFoot preferredFoot,
+            String career) {
         return Player.builder()
                 .user(user)
                 .birthDate(birthDate)
@@ -64,7 +67,8 @@ public class Player extends BaseTimeEntity {
                 .build();
     }
 
-    public void updateProfile(Integer height, Integer weight, PreferredFoot preferredFoot, String career) {
+    public void updateProfile(
+            Integer height, Integer weight, PreferredFoot preferredFoot, String career) {
         if (height != null) {
             this.height = height;
         }

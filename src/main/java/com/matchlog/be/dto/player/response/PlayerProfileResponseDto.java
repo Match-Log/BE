@@ -1,12 +1,10 @@
 package com.matchlog.be.dto.player.response;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.matchlog.be.constant.player.PreferredFoot;
 import com.matchlog.be.domain.player.Player;
-
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,7 +27,10 @@ public class PlayerProfileResponseDto {
     private PreferredFoot preferredFoot;
     private String career;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+    @JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd'T'HH:mm:ss",
+            timezone = "Asia/Seoul")
     private LocalDateTime createdAt;
 
     public static PlayerProfileResponseDto from(Player player) {

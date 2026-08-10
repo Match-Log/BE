@@ -1,10 +1,9 @@
 package com.matchlog.be.repository;
 
 import com.matchlog.be.domain.match.Match;
-import org.springframework.data.jpa.repository.JpaRepository;
-
 import java.time.LocalDateTime;
 import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MatchRepository extends JpaRepository<Match, Long> {
 

@@ -2,12 +2,11 @@ package com.matchlog.be.repository;
 
 import com.matchlog.be.constant.participation.ParticipationRole;
 import com.matchlog.be.domain.participation.Participation;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.util.List;
-import java.util.Optional;
 
 public interface ParticipationRepository extends JpaRepository<Participation, Long> {
 
@@ -25,7 +24,8 @@ public interface ParticipationRepository extends JpaRepository<Participation, Lo
 
     // [GET /api/v1/teams/{teamId}/players] 팀 로스터 조회
     // 규칙§3: Participation → Player → User 3단계 fetch join.
-    @Query("SELECT p FROM Participation p JOIN FETCH p.player pl JOIN FETCH pl.user WHERE p.team.id = :teamId")
+    @Query(
+            "SELECT p FROM Participation p JOIN FETCH p.player pl JOIN FETCH pl.user WHERE p.team.id = :teamId")
     List<Participation> findRosterByTeamId(@Param("teamId") Long teamId);
 
     // [GET /api/v1/teams] 내 팀 목록 — 해당 선수가 속한 팀 + role 반환

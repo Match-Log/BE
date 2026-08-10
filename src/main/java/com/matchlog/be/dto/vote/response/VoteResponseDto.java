@@ -1,11 +1,9 @@
 package com.matchlog.be.dto.vote.response;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.matchlog.be.constant.vote.VoteStatus;
 import com.matchlog.be.domain.vote.Vote;
-
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,7 +19,10 @@ public class VoteResponseDto {
     private Long playerId;
     private VoteStatus status;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+    @JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd'T'HH:mm:ss",
+            timezone = "Asia/Seoul")
     private LocalDateTime votedAt;
 
     public static VoteResponseDto from(Vote vote) {
