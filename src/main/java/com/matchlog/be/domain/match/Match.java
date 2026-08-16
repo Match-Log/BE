@@ -1,12 +1,9 @@
 package com.matchlog.be.domain.match;
 
-import java.time.LocalDateTime;
-
 import com.matchlog.be.constant.match.HomeAway;
 import com.matchlog.be.constant.match.MatchType;
 import com.matchlog.be.domain.common.BaseTimeEntity;
 import com.matchlog.be.domain.team.Team;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -18,6 +15,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -65,8 +63,13 @@ public class Match extends BaseTimeEntity {
     @Builder.Default
     private boolean isFinished = false;
 
-    public static Match create(Team team, String opponent, LocalDateTime matchDate, String location,
-            HomeAway homeAway, MatchType matchType) {
+    public static Match create(
+            Team team,
+            String opponent,
+            LocalDateTime matchDate,
+            String location,
+            HomeAway homeAway,
+            MatchType matchType) {
         return Match.builder()
                 .team(team)
                 .opponent(opponent)
@@ -78,7 +81,8 @@ public class Match extends BaseTimeEntity {
                 .build();
     }
 
-    public void updateSchedule(String opponent, LocalDateTime matchDate, String location, HomeAway homeAway) {
+    public void updateSchedule(
+            String opponent, LocalDateTime matchDate, String location, HomeAway homeAway) {
         if (opponent != null) {
             this.opponent = opponent;
         }

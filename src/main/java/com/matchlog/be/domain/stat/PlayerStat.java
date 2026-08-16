@@ -3,7 +3,6 @@ package com.matchlog.be.domain.stat;
 import com.matchlog.be.domain.common.BaseTimeEntity;
 import com.matchlog.be.domain.match.Match;
 import com.matchlog.be.domain.player.Player;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -58,13 +57,15 @@ public class PlayerStat extends BaseTimeEntity {
     private Boolean cleanSheet;
 
     public static PlayerStat create(Match match, Player player) {
-        return PlayerStat.builder()
-                .match(match)
-                .player(player)
-                .build();
+        return PlayerStat.builder().match(match).player(player).build();
     }
 
-    public void updateStats(int goals, int assists, int shots, Integer saves, Integer goalsConceded,
+    public void updateStats(
+            int goals,
+            int assists,
+            int shots,
+            Integer saves,
+            Integer goalsConceded,
             Boolean cleanSheet) {
         this.goals = goals;
         this.assists = assists;

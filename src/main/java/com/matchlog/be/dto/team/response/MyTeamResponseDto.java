@@ -1,7 +1,6 @@
 package com.matchlog.be.dto.team.response;
 
 import com.matchlog.be.domain.team.Team;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

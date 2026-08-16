@@ -18,40 +18,37 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleCustomException(CustomException e) {
         ErrorCode errorCode = e.getErrorCode();
         log.warn("CustomException: {}", e.getMessage());
-        return ResponseEntity
-                .status(errorCode.getStatus())
+        return ResponseEntity.status(errorCode.getStatus())
                 .body(ErrorResponse.of(errorCode.getCode(), e.getMessage()));
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException e) {
+    public ResponseEntity<ErrorResponse> handleValidationException(
+            MethodArgumentNotValidException e) {
         log.warn("Validation failed: {}", e.getMessage());
-        return ResponseEntity
-                .status(CommonErrorCode.INVALID_REQUEST_BODY.getStatus())
+        return ResponseEntity.status(CommonErrorCode.INVALID_REQUEST_BODY.getStatus())
                 .body(ErrorResponse.of(CommonErrorCode.INVALID_REQUEST_BODY));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException e) {
+    public ResponseEntity<ErrorResponse> handleHttpMessageNotReadable(
+            HttpMessageNotReadableException e) {
         log.warn("HttpMessageNotReadable: {}", e.getMessage());
-        return ResponseEntity
-                .status(CommonErrorCode.INVALID_REQUEST_BODY.getStatus())
+        return ResponseEntity.status(CommonErrorCode.INVALID_REQUEST_BODY.getStatus())
                 .body(ErrorResponse.of(CommonErrorCode.INVALID_REQUEST_BODY));
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
         log.warn("TypeMismatch: {}", e.getMessage());
-        return ResponseEntity
-                .status(CommonErrorCode.INVALID_REQUEST_BODY.getStatus())
+        return ResponseEntity.status(CommonErrorCode.INVALID_REQUEST_BODY.getStatus())
                 .body(ErrorResponse.of(CommonErrorCode.INVALID_REQUEST_BODY));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
         log.error("Unexpected exception: ", e);
-        return ResponseEntity
-                .status(CommonErrorCode.INTERNAL_SERVER_ERROR.getStatus())
+        return ResponseEntity.status(CommonErrorCode.INTERNAL_SERVER_ERROR.getStatus())
                 .body(ErrorResponse.of(CommonErrorCode.INTERNAL_SERVER_ERROR));
     }
 }

@@ -2,7 +2,6 @@ package com.matchlog.be.domain.user;
 
 import com.matchlog.be.constant.user.Provider;
 import com.matchlog.be.domain.common.BaseTimeEntity;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -45,7 +44,8 @@ public class User extends BaseTimeEntity {
     @Column(length = 20)
     private Provider provider;
 
-    public static User create(String email, String password, String name, String profileImage, Provider provider) {
+    public static User create(
+            String email, String password, String name, String profileImage, Provider provider) {
         return User.builder()
                 .email(email)
                 .password(password)

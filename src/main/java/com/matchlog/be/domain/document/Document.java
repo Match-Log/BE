@@ -5,7 +5,6 @@ import com.matchlog.be.domain.common.BaseTimeEntity;
 import com.matchlog.be.domain.match.Match;
 import com.matchlog.be.domain.player.Player;
 import com.matchlog.be.domain.team.Team;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -47,8 +46,8 @@ public class Document extends BaseTimeEntity {
     @JoinColumn(name = "matchId")
     private Match match;
 
-    @Column(name = "isExpendedDocuument", nullable = false)
-    private boolean isExpendedDocument;
+    @Column(name = "isPinned", nullable = false)
+    private boolean isPinned;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
@@ -60,8 +59,14 @@ public class Document extends BaseTimeEntity {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
-    public static Document create(Team team, Player player, Match match, DocumentType documentType, String title,
-            String content, boolean isExpendedDocument) {
+    public static Document create(
+            Team team,
+            Player player,
+            Match match,
+            DocumentType documentType,
+            String title,
+            String content,
+            boolean isPinned) {
         return Document.builder()
                 .team(team)
                 .player(player)
@@ -69,7 +74,7 @@ public class Document extends BaseTimeEntity {
                 .documentType(documentType)
                 .title(title)
                 .content(content)
-                .isExpendedDocument(isExpendedDocument)
+                .isPinned(isPinned)
                 .build();
     }
 
@@ -83,10 +88,10 @@ public class Document extends BaseTimeEntity {
     }
 
     public void pin() {
-        this.isExpendedDocument = true;
+        this.isPinned = true;
     }
 
     public void unpin() {
-        this.isExpendedDocument = false;
+        this.isPinned = false;
     }
 }

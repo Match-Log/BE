@@ -1,12 +1,10 @@
 package com.matchlog.be.dto.match.response;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.matchlog.be.constant.match.HomeAway;
 import com.matchlog.be.constant.match.MatchType;
 import com.matchlog.be.domain.match.Match;
-
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,7 +20,10 @@ public class CreateMatchResponseDto {
     private Long teamId;
     private String opponent;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+    @JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd'T'HH:mm:ss",
+            timezone = "Asia/Seoul")
     private LocalDateTime matchDate;
 
     private String location;
@@ -30,7 +31,10 @@ public class CreateMatchResponseDto {
     private MatchType matchType;
     private boolean isFinished;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+    @JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd'T'HH:mm:ss",
+            timezone = "Asia/Seoul")
     private LocalDateTime createdAt;
 
     private Long boardId;

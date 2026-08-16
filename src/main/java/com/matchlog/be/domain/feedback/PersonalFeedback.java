@@ -1,11 +1,8 @@
 package com.matchlog.be.domain.feedback;
 
-import java.util.List;
-
 import com.matchlog.be.domain.common.BaseTimeEntity;
 import com.matchlog.be.domain.match.Match;
 import com.matchlog.be.domain.player.Player;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -16,6 +13,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -65,8 +63,16 @@ public class PersonalFeedback extends BaseTimeEntity {
     @Builder.Default
     private boolean isVisible = true;
 
-    public static PersonalFeedback create(Match match, Player player, Player coach, String content, Integer rating,
-            String pros, String cons, List<String> tags, boolean isVisible) {
+    public static PersonalFeedback create(
+            Match match,
+            Player player,
+            Player coach,
+            String content,
+            Integer rating,
+            String pros,
+            String cons,
+            List<String> tags,
+            boolean isVisible) {
         return PersonalFeedback.builder()
                 .match(match)
                 .player(player)
@@ -80,7 +86,12 @@ public class PersonalFeedback extends BaseTimeEntity {
                 .build();
     }
 
-    public void update(String content, Integer rating, String pros, String cons, List<String> tags,
+    public void update(
+            String content,
+            Integer rating,
+            String pros,
+            String cons,
+            List<String> tags,
             Boolean isVisible) {
         this.content = content;
         this.rating = rating;

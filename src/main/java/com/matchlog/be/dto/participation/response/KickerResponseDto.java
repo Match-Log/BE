@@ -1,7 +1,6 @@
 package com.matchlog.be.dto.participation.response;
 
 import com.matchlog.be.domain.participation.Participation;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

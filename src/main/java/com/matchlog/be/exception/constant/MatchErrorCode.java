@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 
 @RequiredArgsConstructor
 public enum MatchErrorCode implements ErrorCode {
-
     MATCH_NOT_FOUND(HttpStatus.NOT_FOUND, "MATCH_NOT_FOUND", "존재하지 않는 경기입니다."),
     ALREADY_VOTED(HttpStatus.CONFLICT, "ALREADY_VOTED", "이미 투표한 경기입니다."),
     VOTE_NOT_FOUND(HttpStatus.NOT_FOUND, "VOTE_NOT_FOUND", "투표 기록이 없습니다. 먼저 투표해주세요."),
@@ -19,7 +18,18 @@ public enum MatchErrorCode implements ErrorCode {
     private final String code;
     private final String message;
 
-    @Override public HttpStatus getStatus() { return status; }
-    @Override public String getCode() { return code; }
-    @Override public String getMessage() { return message; }
+    @Override
+    public HttpStatus getStatus() {
+        return status;
+    }
+
+    @Override
+    public String getCode() {
+        return code;
+    }
+
+    @Override
+    public String getMessage() {
+        return message;
+    }
 }

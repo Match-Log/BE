@@ -2,7 +2,6 @@ package com.matchlog.be.domain.lineup;
 
 import com.matchlog.be.domain.common.BaseTimeEntity;
 import com.matchlog.be.domain.match.Match;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -41,11 +40,7 @@ public class Lineup extends BaseTimeEntity {
     private String formation;
 
     public static Lineup create(Match match, int quarter, String formation) {
-        return Lineup.builder()
-                .match(match)
-                .quarter(quarter)
-                .formation(formation)
-                .build();
+        return Lineup.builder().match(match).quarter(quarter).formation(formation).build();
     }
 
     public void changeFormation(String formation) {

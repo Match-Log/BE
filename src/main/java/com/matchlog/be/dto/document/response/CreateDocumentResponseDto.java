@@ -1,11 +1,9 @@
 package com.matchlog.be.dto.document.response;
 
-import java.time.LocalDateTime;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.matchlog.be.constant.document.DocumentType;
 import com.matchlog.be.domain.document.Document;
-
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -23,10 +21,13 @@ public class CreateDocumentResponseDto {
     private DocumentType documentType;
     private String title;
     private String content;
-    private boolean isExpendedDocument;
+    private boolean isPinned;
     private Long matchId;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+    @JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd'T'HH:mm:ss",
+            timezone = "Asia/Seoul")
     private LocalDateTime createdAt;
 
     public static CreateDocumentResponseDto from(Document document) {
@@ -37,7 +38,7 @@ public class CreateDocumentResponseDto {
                 .documentType(document.getDocumentType())
                 .title(document.getTitle())
                 .content(document.getContent())
-                .isExpendedDocument(document.isExpendedDocument())
+                .isPinned(document.isPinned())
                 .matchId(document.getMatch() != null ? document.getMatch().getId() : null)
                 .createdAt(document.getCreatedAt())
                 .build();

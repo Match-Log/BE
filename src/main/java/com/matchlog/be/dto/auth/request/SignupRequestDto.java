@@ -1,7 +1,6 @@
 package com.matchlog.be.dto.auth.request;
 
 import com.matchlog.be.constant.user.Provider;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

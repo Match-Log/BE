@@ -1,7 +1,6 @@
 package com.matchlog.be.domain.lineup;
 
 import com.matchlog.be.domain.player.Player;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -43,7 +42,8 @@ public class LineupSpot {
     @Column(nullable = false)
     private boolean isStarter;
 
-    public static LineupSpot create(Lineup lineup, Player player, String position, boolean isStarter) {
+    public static LineupSpot create(
+            Lineup lineup, Player player, String position, boolean isStarter) {
         return LineupSpot.builder()
                 .lineup(lineup)
                 .player(player)

@@ -1,12 +1,10 @@
 package com.matchlog.be.dto.feedback.response;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.matchlog.be.domain.feedback.PersonalFeedback;
 import com.matchlog.be.domain.feedback.TeamFeedback;
-
+import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,7 +27,10 @@ public class FeedbackResponseDto {
     private List<String> tags;
     private Boolean isVisible;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss", timezone = "Asia/Seoul")
+    @JsonFormat(
+            shape = JsonFormat.Shape.STRING,
+            pattern = "yyyy-MM-dd'T'HH:mm:ss",
+            timezone = "Asia/Seoul")
     private LocalDateTime updatedAt;
 
     public static FeedbackResponseDto from(TeamFeedback feedback) {
