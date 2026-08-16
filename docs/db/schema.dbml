@@ -205,11 +205,33 @@ Table PLAYER_STAT {
 // ---------------------------------------------------------------------------
 // 전술 / 피드백 (팀 = 경기당 1개, 개인 = 경기+선수당 1개)
 // ---------------------------------------------------------------------------
+// 수정된 TEAM_TACTIC 테이블
 Table TEAM_TACTIC {
   id bigint [pk, increment]
   matchId bigint [not null]
   coachId bigint [null, note: 'Player.id(팀 MANAGER, 서비스 검증). 작성 코치 탈퇴 시에도 전술 내용 보존 위해 nullable + ON DELETE SET NULL(작성자 미표시)']
-  content text [not null]
+
+  // 기존
+  content text [null, note: '자유 코멘트. 전술 항목 추가로 nullable로 변경']
+
+  // 수비
+  defensiveLineHeight defensive_line_height [null, note: '수비 라인 높이']
+  defensiveSpacing    defensive_spacing     [null, note: '수비 간격']
+  setPieceDefense     set_piece_defense     [null, note: '세트피스 수비 방식']
+  flankDefense        flank_defense         [null, note: '측면 수비 대응']
+  offsideTrap         boolean               [null, note: '오프사이드 트랩 활용 여부']
+
+  // 공격
+  crossType           cross_type            [null, note: '크로스 시도 위치']
+  setPieceAttack      set_piece_attack      [null, note: '세트피스 공격 패턴']
+
+  // 중원
+  possessionStrategy  possession_strategy   [null, note: '볼 소유 전략']
+
+  // 공통
+  pressingTrigger     pressing_trigger      [null, note: '압박 시작 지점']
+  pressingIntensity   int                   [null, note: '압박 강도 1~5 (CHECK 권장)']
+
   createdAt datetime [not null]
   updatedAt datetime [not null]
 
