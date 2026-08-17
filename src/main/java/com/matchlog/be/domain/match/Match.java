@@ -21,6 +21,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Getter
@@ -36,6 +38,7 @@ public class Match extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "teamId", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Team team;
 
     @Column(nullable = false, length = 100)
