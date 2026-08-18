@@ -54,6 +54,51 @@ Enum preferred_foot {
   RIGHT
 }
 
+Enum defensive_line_height {
+  HIGH_LINE      // 하이라인
+  MID_BLOCK      // 미드블록
+  LOW_BLOCK      // 로우블록
+}
+
+Enum defensive_spacing {
+  COMPACT // 컴팩트
+  WIDE    // 넓음
+}
+
+Enum set_piece_defense {
+  MAN_MARKING  // 전담마크
+  ZONE_DEFENSE // 지역방어
+}
+
+Enum flank_defense {
+  MAN_MARKING  // 전담마크
+  ZONE_DEFENSE // 지역방어
+}
+
+Enum cross_type {
+  EARLY_CROSS     // 얼리크로스 위주
+  BOX_ENTRY_CROSS // 페널티 박스 진입 후 크로스 위주
+  CUTBACK         // 컷백 위주
+}
+
+Enum set_piece_attack {
+  SHORT_CORNER  // 숏코너
+  DIRECT_SHOT   // 직접 슈팅
+  HEADER_TARGET // 헤딩 타겟
+}
+
+Enum possession_strategy {
+  POSSESSION_FOCUSED // 점유율 중시
+  QUICK_COUNTER      // 빠른 역습 중시
+  MIXED              // 혼합
+}
+
+Enum pressing_trigger {
+  FRONT     // 전방
+  MIDFIELD  // 중원
+  OWN_HALF  // 자진영
+}
+
 // ---------------------------------------------------------------------------
 // Core
 // ---------------------------------------------------------------------------
