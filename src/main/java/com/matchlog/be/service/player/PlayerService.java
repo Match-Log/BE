@@ -52,4 +52,14 @@ public class PlayerService {
 
         return PlayerProfileResponseDto.from(player);
     }
+
+    /**
+     * JWT의 userId를 현재 요청자의 Player 엔티티로 변환. 팀/경기/투표 등 대부분의 도메인에서 "현재 선수"를 특정할 때 재사용. 선수 등록을 하지 않은
+     * 유저가 접근하면 PLAYER_NOT_FOUND.
+     */
+    public Player getCurrentPlayer(Long userId) {
+        return playerRepository
+                .findByUser_Id(userId)
+                .orElseThrow(() -> new CustomException(PlayerErrorCode.PLAYER_NOT_FOUND));
+    }
 }
