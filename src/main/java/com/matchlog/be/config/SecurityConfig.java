@@ -5,7 +5,9 @@ import com.matchlog.be.util.jwt.JwtAuthFilter;
 import com.matchlog.be.util.jwt.JwtTokenProvider;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
@@ -17,6 +19,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /**
  * Spring Security 전체 설정을 담당하는 클래스.
@@ -25,8 +30,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * 형식도 정의.
  *
  * <p>차이점: - gangku는 JwtAuthenticationEntryPoint, JwtAccessDeniedHandler를 별도 클래스로 분리했지만 여기선 람다로
- * SecurityConfig 안에서 처리함 (파일 수 줄이기 위한 선택). - gangku는 CORS 설정, 프로필별 H2 콘솔 분기도 포함함. 여기선 단순하게 유지하고 나중에
- * CORS 설정을 추가할 예정.
+ * SecurityConfig 안에서 처리함 (파일 수 줄이기 위한 선택). - gangku는 프로필별 H2 콘솔 분기도 포함함. 여기선 단순하게 유지.
  */
 @Configuration
 @EnableWebSecurity
@@ -34,6 +38,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+
+    @Value("${cors.allowed-origins:http://localhost:3000,http://localhost:5173}")
+    private String allowedOrigins;
 
     /**
      * 비밀번호 암호화 방식 등록. BCrypt 해시 알고리즘 사용 — 회원가입 시 비밀번호를 DB에 저장하기 전 이걸로 암호화, 로그인 시 입력된 비밀번호와 DB의 해시값을
@@ -57,6 +64,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
@@ -91,6 +99,26 @@ public class SecurityConfig {
                         UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    /**
+     * FE 오리진 허용 설정. `cors.allowed-origins` 프로퍼티(콤마 구분)로 배포 환경별 오리진을 주입, 기본값은 로컬 개발 서버(CRA/Vite).
+     * 쿠키/Authorization 헤더를 주고받아야 하므로 allowCredentials(true) — 이 경우 allowedOrigins에 와일드카드("*")는 쓸 수
+     * 없어 allowedOriginPatterns 사용.
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(List.of(allowedOrigins.split(",")));
+        configuration.setAllowedMethods(
+                List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
     /**
