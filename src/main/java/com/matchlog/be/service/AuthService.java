@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private static final String REFRESH_PREFIX = "refresh:";
+    private static final String BLACKLIST_PREFIX = "blacklist:";
     private static final Duration REFRESH_TTL = Duration.ofDays(7);
 
     private final UserRepository userRepository;
@@ -118,8 +119,14 @@ public class AuthService {
         return ReissueResponseDto.builder().accessToken(newAccess).refreshToken(newRefresh).build();
     }
 
-    public void logout(Long userId) {
+    public void logout(Long userId, String accessToken) {
         redisTemplate.delete(REFRESH_PREFIX + userId);
+        long remainingExpiry = jwtTokenProvider.getRemainingExpiry(accessToken);
+        if (remainingExpiry > 0) {
+            redisTemplate
+                    .opsForValue()
+                    .set(BLACKLIST_PREFIX + accessToken, "1", Duration.ofMillis(remainingExpiry));
+        }
     }
 
     @Transactional(readOnly = true)

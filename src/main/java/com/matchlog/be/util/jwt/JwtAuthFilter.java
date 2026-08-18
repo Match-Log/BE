@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -28,8 +29,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
+    private static final String BLACKLIST_PREFIX = "blacklist:";
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTemplate<String, String> redisTemplate;
 
     /**
      * 요청마다 실행되는 핵심 로직.
@@ -47,7 +50,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String token = resolveToken(request);
 
-        if (StringUtils.hasText(token) && jwtTokenProvider.validate(token)) {
+        if (StringUtils.hasText(token) && jwtTokenProvider.validate(token)
+                && !isBlacklisted(token)) {
             Long userId = jwtTokenProvider.getUserId(token);
 
             // principal 자리에 userId를 직접 넣음.
@@ -64,6 +68,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
      * Authorization 헤더에서 토큰 문자열만 추출. "Bearer eyJhbGci..." → "eyJhbGci..." 반환. 헤더가 없거나 형식이 다르면 null
      * 반환.
      */
+    private boolean isBlacklisted(String token) {
+        return Boolean.TRUE.equals(redisTemplate.hasKey(BLACKLIST_PREFIX + token));
+    }
+
     private String resolveToken(HttpServletRequest request) {
         String bearer = request.getHeader(AUTHORIZATION_HEADER);
         if (StringUtils.hasText(bearer) && bearer.startsWith(BEARER_PREFIX)) {
