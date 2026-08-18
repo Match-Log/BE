@@ -8,6 +8,7 @@ import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -34,6 +35,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTemplate<String, String> redisTemplate;
 
     /**
      * 비밀번호 암호화 방식 등록. BCrypt 해시 알고리즘 사용 — 회원가입 시 비밀번호를 DB에 저장하기 전 이걸로 암호화, 로그인 시 입력된 비밀번호와 DB의 해시값을
@@ -63,6 +65,7 @@ public class SecurityConfig {
                                 auth.requestMatchers(
                                                 "/api/v1/auth/signup",
                                                 "/api/v1/auth/login",
+                                                "/api/v1/auth/oauth/**",
                                                 "/api/v1/auth/reissue",
                                                 "/api/v1/auth/check-email",
                                                 "/h2-console/**",
@@ -86,7 +89,7 @@ public class SecurityConfig {
                                                                 response,
                                                                 CommonErrorCode.FORBIDDEN)))
                 .addFilterBefore(
-                        new JwtAuthFilter(jwtTokenProvider),
+                        new JwtAuthFilter(jwtTokenProvider, redisTemplate),
                         UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
