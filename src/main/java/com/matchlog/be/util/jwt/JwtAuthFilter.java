@@ -50,7 +50,8 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         String token = resolveToken(request);
 
-        if (StringUtils.hasText(token) && jwtTokenProvider.validate(token)
+        if (StringUtils.hasText(token)
+                && jwtTokenProvider.validate(token)
                 && !isBlacklisted(token)) {
             Long userId = jwtTokenProvider.getUserId(token);
 
