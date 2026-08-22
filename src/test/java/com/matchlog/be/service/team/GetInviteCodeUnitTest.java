@@ -2,10 +2,12 @@ package com.matchlog.be.service.team;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import com.matchlog.be.constant.participation.ParticipationRole;
-import com.matchlog.be.domain.participation.Participation;
 import com.matchlog.be.domain.player.Player;
 import com.matchlog.be.domain.team.Team;
 import com.matchlog.be.dto.team.response.InviteCodeResponseDto;
@@ -32,18 +34,17 @@ class GetInviteCodeUnitTest {
     @Mock private TeamRepository teamRepository;
     @Mock private ParticipationRepository participationRepository;
     @Mock private PlayerService playerService;
+    @Mock private TeamAuthorizationService teamAuthorizationService;
     @InjectMocks private TeamService teamService;
 
     @Test
     void MANAGER면_초대코드_조회에_성공한다() {
         Player player = Player.builder().id(9L).build();
         Team team = Team.builder().id(1L).inviteCode("HK4829").build();
-        Participation participation = Participation.create(player, team, ParticipationRole.MANAGER);
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(player);
         when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
-        when(participationRepository.findByTeam_IdAndPlayer_Id(1L, 9L))
-                .thenReturn(Optional.of(participation));
+        doNothing().when(teamAuthorizationService).requireManager(eq(1L), eq(9L), anyString());
 
         InviteCodeResponseDto response = teamService.getInviteCode(USER_ID, 1L);
 
@@ -66,33 +67,15 @@ class GetInviteCodeUnitTest {
     }
 
     @Test
-    void PLAYER_역할이면_FORBIDDEN_예외가_발생한다() {
-        Player player = Player.builder().id(9L).build();
-        Team team = Team.builder().id(1L).inviteCode("HK4829").build();
-        Participation participation = Participation.create(player, team, ParticipationRole.PLAYER);
-
-        when(playerService.getCurrentPlayer(USER_ID)).thenReturn(player);
-        when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
-        when(participationRepository.findByTeam_IdAndPlayer_Id(1L, 9L))
-                .thenReturn(Optional.of(participation));
-
-        assertThatThrownBy(() -> teamService.getInviteCode(USER_ID, 1L))
-                .isInstanceOf(CustomException.class)
-                .satisfies(
-                        e ->
-                                assertThat(((CustomException) e).getErrorCode())
-                                        .isEqualTo(CommonErrorCode.FORBIDDEN));
-    }
-
-    @Test
-    void 팀_소속이_아니면_FORBIDDEN_예외가_발생한다() {
+    void MANAGER가_아니면_FORBIDDEN_예외가_발생한다() {
         Player player = Player.builder().id(9L).build();
         Team team = Team.builder().id(1L).inviteCode("HK4829").build();
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(player);
         when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
-        when(participationRepository.findByTeam_IdAndPlayer_Id(1L, 9L))
-                .thenReturn(Optional.empty());
+        doThrow(new CustomException(CommonErrorCode.FORBIDDEN, "초대 코드 조회 권한이 없습니다. (MANAGER만 가능)"))
+                .when(teamAuthorizationService)
+                .requireManager(1L, 9L, "초대 코드 조회 권한이 없습니다. (MANAGER만 가능)");
 
         assertThatThrownBy(() -> teamService.getInviteCode(USER_ID, 1L))
                 .isInstanceOf(CustomException.class)

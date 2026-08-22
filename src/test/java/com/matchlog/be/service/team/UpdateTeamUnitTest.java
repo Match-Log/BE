@@ -2,10 +2,12 @@ package com.matchlog.be.service.team;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import com.matchlog.be.constant.participation.ParticipationRole;
-import com.matchlog.be.domain.participation.Participation;
 import com.matchlog.be.domain.player.Player;
 import com.matchlog.be.domain.team.Team;
 import com.matchlog.be.dto.team.request.UpdateTeamRequestDto;
@@ -33,6 +35,7 @@ class UpdateTeamUnitTest {
     @Mock private TeamRepository teamRepository;
     @Mock private ParticipationRepository participationRepository;
     @Mock private PlayerService playerService;
+    @Mock private TeamAuthorizationService teamAuthorizationService;
     @InjectMocks private TeamService teamService;
 
     @Test
@@ -45,13 +48,11 @@ class UpdateTeamUnitTest {
                         .region("서울 마포구")
                         .inviteCode("HK4829")
                         .build();
-        Participation participation = Participation.create(player, team, ParticipationRole.MANAGER);
         UpdateTeamRequestDto request = UpdateTeamRequestDto.builder().name("한강불사조 FC").build();
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(player);
         when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
-        when(participationRepository.findByTeam_IdAndPlayer_Id(1L, 9L))
-                .thenReturn(Optional.of(participation));
+        doNothing().when(teamAuthorizationService).requireManager(eq(1L), eq(9L), anyString());
 
         UpdateTeamResponseDto response = teamService.updateTeam(USER_ID, 1L, request);
 
@@ -80,13 +81,13 @@ class UpdateTeamUnitTest {
     void MANAGER가_아니면_FORBIDDEN_예외가_발생한다() {
         Player player = Player.builder().id(9L).build();
         Team team = Team.builder().id(1L).name("FC 한강불사조").inviteCode("HK4829").build();
-        Participation participation = Participation.create(player, team, ParticipationRole.PLAYER);
         UpdateTeamRequestDto request = UpdateTeamRequestDto.builder().name("한강불사조 FC").build();
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(player);
         when(teamRepository.findById(1L)).thenReturn(Optional.of(team));
-        when(participationRepository.findByTeam_IdAndPlayer_Id(1L, 9L))
-                .thenReturn(Optional.of(participation));
+        doThrow(new CustomException(CommonErrorCode.FORBIDDEN, "팀 정보 수정 권한이 없습니다. (MANAGER만 가능)"))
+                .when(teamAuthorizationService)
+                .requireManager(1L, 9L, "팀 정보 수정 권한이 없습니다. (MANAGER만 가능)");
 
         assertThatThrownBy(() -> teamService.updateTeam(USER_ID, 1L, request))
                 .isInstanceOf(CustomException.class)
