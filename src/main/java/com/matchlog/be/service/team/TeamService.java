@@ -34,6 +34,7 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final ParticipationRepository participationRepository;
     private final PlayerService playerService;
+    private final TeamAuthorizationService teamAuthorizationService;
     private final SecureRandom random = new SecureRandom();
 
     @Transactional
@@ -91,7 +92,8 @@ public class TeamService {
                         .findById(teamId)
                         .orElseThrow(() -> new CustomException(TeamErrorCode.TEAM_NOT_FOUND));
 
-        requireManager(teamId, player.getId(), "초대 코드 조회 권한이 없습니다. (MANAGER만 가능)");
+        teamAuthorizationService.requireManager(
+                teamId, player.getId(), "초대 코드 조회 권한이 없습니다. (MANAGER만 가능)");
 
         return InviteCodeResponseDto.builder().inviteCode(team.getInviteCode()).build();
     }
@@ -106,7 +108,8 @@ public class TeamService {
                         .findById(teamId)
                         .orElseThrow(() -> new CustomException(TeamErrorCode.TEAM_NOT_FOUND));
 
-        requireManager(teamId, player.getId(), "팀 정보 수정 권한이 없습니다. (MANAGER만 가능)");
+        teamAuthorizationService.requireManager(
+                teamId, player.getId(), "팀 정보 수정 권한이 없습니다. (MANAGER만 가능)");
 
         team.changeInfo(
                 request.getName(),
@@ -127,18 +130,10 @@ public class TeamService {
                         .findById(teamId)
                         .orElseThrow(() -> new CustomException(TeamErrorCode.TEAM_NOT_FOUND));
 
-        requireManager(teamId, player.getId(), "팀 삭제 권한이 없습니다. (MANAGER만 가능)");
+        teamAuthorizationService.requireManager(
+                teamId, player.getId(), "팀 삭제 권한이 없습니다. (MANAGER만 가능)");
 
         teamRepository.delete(team);
-    }
-
-    /** 요청자가 해당 팀의 MANAGER인지 검증. 비소속이거나 PLAYER면 FORBIDDEN. */
-    private void requireManager(Long teamId, Long playerId, String forbiddenMessage) {
-        Participation participation =
-                participationRepository.findByTeam_IdAndPlayer_Id(teamId, playerId).orElse(null);
-        if (participation == null || participation.getRole() != ParticipationRole.MANAGER) {
-            throw new CustomException(CommonErrorCode.FORBIDDEN, forbiddenMessage);
-        }
     }
 
     /** 6자리 영문대문자+숫자 초대코드 생성. 충돌 시 최대 {@value INVITE_CODE_MAX_ATTEMPTS}회 재시도. */
