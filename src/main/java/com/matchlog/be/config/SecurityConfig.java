@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -38,6 +39,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${cors.allowed-origins:http://localhost:3000,http://localhost:5173}")
     private String allowedOrigins;
@@ -72,6 +74,7 @@ public class SecurityConfig {
                                 auth.requestMatchers(
                                                 "/api/v1/auth/signup",
                                                 "/api/v1/auth/login",
+                                                "/api/v1/auth/oauth/**",
                                                 "/api/v1/auth/reissue",
                                                 "/api/v1/auth/check-email",
                                                 "/h2-console/**",
@@ -95,7 +98,7 @@ public class SecurityConfig {
                                                                 response,
                                                                 CommonErrorCode.FORBIDDEN)))
                 .addFilterBefore(
-                        new JwtAuthFilter(jwtTokenProvider),
+                        new JwtAuthFilter(jwtTokenProvider, redisTemplate),
                         UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

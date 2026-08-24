@@ -80,6 +80,12 @@ public class JwtTokenProvider {
      * 예외를 던지지 않는 이유: 필터에서 예외가 발생하면 Spring의 exceptionHandling이 아닌 Servlet 레벨에서 처리되어
      * GlobalExceptionHandler를 타지 않기 때문.
      */
+    public long getRemainingExpiry(String token) {
+        Date expiration = parseClaims(token).getExpiration();
+        long remaining = expiration.getTime() - System.currentTimeMillis();
+        return Math.max(remaining, 0);
+    }
+
     public boolean validate(String token) {
         try {
             parseClaims(token);
