@@ -4,6 +4,8 @@ import com.matchlog.be.domain.lineup.Lineup;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface LineupRepository extends JpaRepository<Lineup, Long> {
 
@@ -16,5 +18,6 @@ public interface LineupRepository extends JpaRepository<Lineup, Long> {
     // boolean existsByMatch_IdAndQuarter(Long matchId, int quarter);
 
     // [GET /api/v1/matches/{matchId}/lineup] 경기 전 쿼터 라인업 헤더 목록 조회
-    List<Lineup> findByMatch_Id(Long matchId);
+    @Query("SELECT l FROM Lineup l JOIN FETCH l.match WHERE l.match.id = :matchId")
+    List<Lineup> findByMatch_Id(@Param("matchId") Long matchId);
 }
