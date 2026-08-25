@@ -99,13 +99,9 @@ public class LineupService {
 
     private void validateNoDuplicateSpots(List<SaveLineupSpotRequestDto> spots) {
         Set<Long> playerIds = new HashSet<>();
-        Set<String> positions = new HashSet<>();
         for (SaveLineupSpotRequestDto spot : spots) {
             if (!playerIds.add(spot.getPlayerId())) {
                 throw new CustomException(LineupErrorCode.DUPLICATE_PLAYER_IN_LINEUP);
-            }
-            if (!positions.add(spot.getPosition())) {
-                throw new CustomException(LineupErrorCode.DUPLICATE_POSITION_IN_LINEUP);
             }
         }
     }
