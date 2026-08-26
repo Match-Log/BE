@@ -19,12 +19,11 @@ public class SaveLineupRequestDto {
 
     private Long matchId;
 
-    @Min(1) @Max(4)
+    @Min(1)
+    @Max(4)
     private int quarter;
 
-    @NotBlank
-    private String formation;
+    @NotBlank private String formation;
 
-    @NotEmpty @Valid
-    private List<SaveLineupSpotRequestDto> spots;
+    @NotEmpty @Valid private List<SaveLineupSpotRequestDto> spots;
 }

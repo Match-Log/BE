@@ -25,8 +25,7 @@ public class LineupController {
 
     @GetMapping
     public ResponseEntity<List<LineupResponseDto>> getLineup(
-            @AuthenticationPrincipal Long userId,
-            @PathVariable Long matchId) {
+            @AuthenticationPrincipal Long userId, @PathVariable Long matchId) {
         return ResponseEntity.ok(lineupService.getLineup(userId, matchId));
     }
 

@@ -20,9 +20,9 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@Table(name = "LINEUP", uniqueConstraints = {
-    @UniqueConstraint(columnNames = {"matchId", "quarter"})
-})
+@Table(
+        name = "LINEUP",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"matchId", "quarter"})})
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder

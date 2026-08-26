@@ -13,11 +13,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class SaveLineupSpotRequestDto {
 
-    @NotNull
-    private Long playerId;
+    @NotNull private Long playerId;
 
-    @NotBlank
-    private String position;
+    @NotBlank private String position;
 
     private boolean isStarter;
 }

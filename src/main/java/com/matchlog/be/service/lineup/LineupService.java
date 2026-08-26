@@ -42,33 +42,55 @@ public class LineupService {
     private final TeamAuthorizationService teamAuthorizationService;
 
     @Transactional
-    public SaveLineupResponseDto saveLineup(Long userId, Long matchId, SaveLineupRequestDto request) {
+    public SaveLineupResponseDto saveLineup(
+            Long userId, Long matchId, SaveLineupRequestDto request) {
         Player player = playerService.getCurrentPlayer(userId);
-        Match match = matchRepository.findById(matchId)
-                .orElseThrow(() -> new CustomException(MatchErrorCode.MATCH_NOT_FOUND));
+        Match match =
+                matchRepository
+                        .findById(matchId)
+                        .orElseThrow(() -> new CustomException(MatchErrorCode.MATCH_NOT_FOUND));
 
         teamAuthorizationService.requireManager(
                 match.getTeam().getId(), player.getId(), "라인업은 매니저만 저장할 수 있습니다.");
 
         validateNoDuplicateSpots(request.getSpots());
 
-        Map<Long, Player> playerMap = playerRepository.findAllById(
-                        request.getSpots().stream().map(SaveLineupSpotRequestDto::getPlayerId).toList())
-                .stream()
-                .collect(Collectors.toMap(Player::getId, p -> p));
+        Map<Long, Player> playerMap =
+                playerRepository
+                        .findAllById(
+                                request.getSpots().stream()
+                                        .map(SaveLineupSpotRequestDto::getPlayerId)
+                                        .toList())
+                        .stream()
+                        .collect(Collectors.toMap(Player::getId, p -> p));
 
-        Lineup lineup = lineupRepository.findByMatch_IdAndQuarter(matchId, request.getQuarter())
-                .map(existing -> {
-                    existing.changeFormation(request.getFormation());
-                    lineupSpotRepository.deleteByLineup_Id(existing.getId());
-                    return existing;
-                })
-                .orElseGet(() -> lineupRepository.save(
-                        Lineup.create(match, request.getQuarter(), request.getFormation())));
+        Lineup lineup =
+                lineupRepository
+                        .findByMatch_IdAndQuarter(matchId, request.getQuarter())
+                        .map(
+                                existing -> {
+                                    existing.changeFormation(request.getFormation());
+                                    lineupSpotRepository.deleteByLineup_Id(existing.getId());
+                                    return existing;
+                                })
+                        .orElseGet(
+                                () ->
+                                        lineupRepository.save(
+                                                Lineup.create(
+                                                        match,
+                                                        request.getQuarter(),
+                                                        request.getFormation())));
 
-        List<LineupSpot> spots = request.getSpots().stream()
-                .map(s -> LineupSpot.create(lineup, playerMap.get(s.getPlayerId()), s.getPosition(), s.isStarter()))
-                .toList();
+        List<LineupSpot> spots =
+                request.getSpots().stream()
+                        .map(
+                                s ->
+                                        LineupSpot.create(
+                                                lineup,
+                                                playerMap.get(s.getPlayerId()),
+                                                s.getPosition(),
+                                                s.isStarter()))
+                        .toList();
         lineupSpotRepository.saveAll(spots);
 
         return SaveLineupResponseDto.from(lineup);
@@ -77,23 +99,32 @@ public class LineupService {
     @Transactional(readOnly = true)
     public List<LineupResponseDto> getLineup(Long userId, Long matchId) {
         Player player = playerService.getCurrentPlayer(userId);
-        Match match = matchRepository.findById(matchId)
-                .orElseThrow(() -> new CustomException(MatchErrorCode.MATCH_NOT_FOUND));
+        Match match =
+                matchRepository
+                        .findById(matchId)
+                        .orElseThrow(() -> new CustomException(MatchErrorCode.MATCH_NOT_FOUND));
 
-        if (!participationRepository.existsByTeam_IdAndPlayer_Id(match.getTeam().getId(), player.getId())) {
+        if (!participationRepository.existsByTeam_IdAndPlayer_Id(
+                match.getTeam().getId(), player.getId())) {
             throw new CustomException(CommonErrorCode.FORBIDDEN, "해당 팀의 팀원만 라인업을 조회할 수 있습니다.");
         }
 
         List<Lineup> lineups = lineupRepository.findByMatch_Id(matchId);
         List<LineupSpot> allSpots = lineupSpotRepository.findSpotsByMatchId(matchId);
 
-        Map<Long, List<LineupSpotResponseDto>> spotsByLineupId = allSpots.stream()
-                .collect(Collectors.groupingBy(
-                        ls -> ls.getLineup().getId(),
-                        Collectors.mapping(LineupSpotResponseDto::from, Collectors.toList())));
+        Map<Long, List<LineupSpotResponseDto>> spotsByLineupId =
+                allSpots.stream()
+                        .collect(
+                                Collectors.groupingBy(
+                                        ls -> ls.getLineup().getId(),
+                                        Collectors.mapping(
+                                                LineupSpotResponseDto::from, Collectors.toList())));
 
         return lineups.stream()
-                .map(l -> LineupResponseDto.of(l, spotsByLineupId.getOrDefault(l.getId(), List.of())))
+                .map(
+                        l ->
+                                LineupResponseDto.of(
+                                        l, spotsByLineupId.getOrDefault(l.getId(), List.of())))
                 .toList();
     }
 

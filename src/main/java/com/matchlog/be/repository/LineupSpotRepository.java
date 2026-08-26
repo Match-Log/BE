@@ -12,10 +12,12 @@ public interface LineupSpotRepository extends JpaRepository<LineupSpot, Long> {
     // [PUT /api/v1/matches/{matchId}/lineup] 같은 선수 라인업 중복 배치 체크
     boolean existsByLineup_IdAndPlayer_Id(Long lineupId, Long playerId);
 
-    @Query("SELECT ls FROM LineupSpot ls JOIN FETCH ls.player p JOIN FETCH p.user WHERE ls.lineup.id = :lineupId")
+    @Query(
+            "SELECT ls FROM LineupSpot ls JOIN FETCH ls.player p JOIN FETCH p.user WHERE ls.lineup.id = :lineupId")
     List<LineupSpot> findSpotsByLineupId(@Param("lineupId") Long lineupId);
 
-    @Query("SELECT ls FROM LineupSpot ls JOIN FETCH ls.player p JOIN FETCH p.user WHERE ls.lineup.match.id = :matchId")
+    @Query(
+            "SELECT ls FROM LineupSpot ls JOIN FETCH ls.player p JOIN FETCH p.user WHERE ls.lineup.match.id = :matchId")
     List<LineupSpot> findSpotsByMatchId(@Param("matchId") Long matchId);
 
     @Modifying(clearAutomatically = true)
