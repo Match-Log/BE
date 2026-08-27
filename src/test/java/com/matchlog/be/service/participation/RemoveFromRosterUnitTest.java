@@ -100,7 +100,7 @@ class RemoveFromRosterUnitTest {
     }
 
     @Test
-    void 마지막_MANAGER를_제외하려_하면_LAST_MANAGER_CANNOT_BE_REMOVED_예외가_발생한다() {
+    void 본인을_제외하려_하면_FORBIDDEN_예외가_발생한다() {
         Player manager = Player.builder().id(9L).build();
         Team team = Team.builder().id(TEAM_ID).build();
         Participation managerParticipation =
@@ -110,10 +110,33 @@ class RemoveFromRosterUnitTest {
         doNothing().when(teamAuthorizationService).requireManager(eq(TEAM_ID), eq(9L), anyString());
         when(participationRepository.findByTeam_IdAndPlayer_Id(TEAM_ID, 9L))
                 .thenReturn(Optional.of(managerParticipation));
+
+        assertThatThrownBy(() -> participationService.removeFromRoster(USER_ID, TEAM_ID, 9L))
+                .isInstanceOf(CustomException.class)
+                .satisfies(
+                        e ->
+                                assertThat(((CustomException) e).getErrorCode())
+                                        .isEqualTo(CommonErrorCode.FORBIDDEN));
+
+        verify(participationRepository, never()).delete(ArgumentMatchers.any(Participation.class));
+    }
+
+    @Test
+    void 마지막_MANAGER를_제외하려_하면_LAST_MANAGER_CANNOT_BE_REMOVED_예외가_발생한다() {
+        Player manager = Player.builder().id(9L).build();
+        Player otherManager = Player.builder().id(10L).build();
+        Team team = Team.builder().id(TEAM_ID).build();
+        Participation otherManagerParticipation =
+                Participation.create(otherManager, team, ParticipationRole.MANAGER);
+
+        when(playerService.getCurrentPlayer(USER_ID)).thenReturn(manager);
+        doNothing().when(teamAuthorizationService).requireManager(eq(TEAM_ID), eq(9L), anyString());
+        when(participationRepository.findByTeam_IdAndPlayer_Id(TEAM_ID, 10L))
+                .thenReturn(Optional.of(otherManagerParticipation));
         when(participationRepository.countByTeam_IdAndRole(TEAM_ID, ParticipationRole.MANAGER))
                 .thenReturn(1L);
 
-        assertThatThrownBy(() -> participationService.removeFromRoster(USER_ID, TEAM_ID, 9L))
+        assertThatThrownBy(() -> participationService.removeFromRoster(USER_ID, TEAM_ID, 10L))
                 .isInstanceOf(CustomException.class)
                 .satisfies(
                         e ->
