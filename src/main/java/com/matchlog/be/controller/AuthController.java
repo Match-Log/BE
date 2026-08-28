@@ -66,7 +66,7 @@ public class AuthController {
     public void logout(
             @AuthenticationPrincipal Long userId,
             @RequestHeader("Authorization") String authorization) {
-        String accessToken = authorization.substring(7);
+        String accessToken = authorization.substring("Bearer ".length());
         authService.logout(userId, accessToken);
     }
 

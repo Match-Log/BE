@@ -109,6 +109,7 @@ Table "USER" {
   name varchar(50) [not null]
   profileImage varchar(500) [null]
   provider user_provider [not null, default: 'LOCAL', note: '기존 nullable → NOT NULL/기본값 LOCAL 로 강화']
+  refreshToken varchar(512) [null, note: '로그인/재발급 시 갱신, 로그아웃 시 null. Redis → DB 관리로 이관']
   createdAt datetime [not null]
   updatedAt datetime [not null]
 
