@@ -27,8 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private static final String REFRESH_PREFIX = "refresh:";
-    private static final Duration REFRESH_TTL = Duration.ofDays(7);
+    private static final String BLACKLIST_PREFIX = "blacklist:";
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -53,7 +52,7 @@ public class AuthService {
         return SignupResponseDto.from(user);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public LoginResponseDto login(LoginRequestDto dto) {
         User user =
                 userRepository
@@ -66,7 +65,7 @@ public class AuthService {
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             throw new CustomException(AuthErrorCode.INVALID_CREDENTIALS);
         }
-        return issueTokens(user.getId(), user.getName());
+        return issueTokens(user);
     }
 
     @Transactional
@@ -99,27 +98,46 @@ public class AuthService {
                                                         info.name(),
                                                         info.profileImage(),
                                                         provider)));
-        return issueTokens(user.getId(), user.getName());
+        return issueTokens(user);
     }
 
+    @Transactional
     public ReissueResponseDto reissue(ReissueRequestDto dto) {
         jwtTokenProvider.validateOrThrow(dto.getRefreshToken());
         Long userId = jwtTokenProvider.getUserId(dto.getRefreshToken());
 
-        String stored = redisTemplate.opsForValue().get(REFRESH_PREFIX + userId);
-        if (!dto.getRefreshToken().equals(stored)) {
+        User user =
+                userRepository
+                        .findById(userId)
+                        .orElseThrow(
+                                () -> new CustomException(AuthErrorCode.INVALID_REFRESH_TOKEN));
+
+        if (!dto.getRefreshToken().equals(user.getRefreshToken())) {
             throw new CustomException(AuthErrorCode.INVALID_REFRESH_TOKEN);
         }
 
         String newAccess = jwtTokenProvider.createAccessToken(userId);
         String newRefresh = jwtTokenProvider.createRefreshToken(userId);
-        redisTemplate.opsForValue().set(REFRESH_PREFIX + userId, newRefresh, REFRESH_TTL);
+        user.updateRefreshToken(newRefresh);
 
         return ReissueResponseDto.builder().accessToken(newAccess).refreshToken(newRefresh).build();
     }
 
-    public void logout(Long userId) {
-        redisTemplate.delete(REFRESH_PREFIX + userId);
+    @Transactional
+    public void logout(Long userId, String accessToken) {
+        User user =
+                userRepository
+                        .findById(userId)
+                        .orElseThrow(
+                                () -> new CustomException(AuthErrorCode.INVALID_REFRESH_TOKEN));
+        user.clearRefreshToken();
+
+        long remainingExpiry = jwtTokenProvider.getRemainingExpiry(accessToken);
+        if (remainingExpiry > 0) {
+            redisTemplate
+                    .opsForValue()
+                    .set(BLACKLIST_PREFIX + accessToken, "1", Duration.ofMillis(remainingExpiry));
+        }
     }
 
     @Transactional(readOnly = true)
@@ -129,15 +147,15 @@ public class AuthService {
                 .build();
     }
 
-    private LoginResponseDto issueTokens(Long userId, String name) {
-        String accessToken = jwtTokenProvider.createAccessToken(userId);
-        String refreshToken = jwtTokenProvider.createRefreshToken(userId);
-        redisTemplate.opsForValue().set(REFRESH_PREFIX + userId, refreshToken, REFRESH_TTL);
+    private LoginResponseDto issueTokens(User user) {
+        String accessToken = jwtTokenProvider.createAccessToken(user.getId());
+        String refreshToken = jwtTokenProvider.createRefreshToken(user.getId());
+        user.updateRefreshToken(refreshToken);
         return LoginResponseDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
-                .userId(userId)
-                .name(name)
+                .userId(user.getId())
+                .name(user.getName())
                 .build();
     }
 }
