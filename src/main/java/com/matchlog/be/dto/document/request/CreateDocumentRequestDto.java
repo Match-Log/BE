@@ -1,6 +1,5 @@
 package com.matchlog.be.dto.document.request;
 
-import com.matchlog.be.constant.document.DocumentType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,7 +12,7 @@ import lombok.NoArgsConstructor;
 public class CreateDocumentRequestDto {
 
     private Long teamId;
-    private DocumentType documentType;
+    private Long matchId;
     private String title;
     private String content;
 

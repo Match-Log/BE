@@ -1,14 +1,11 @@
 package com.matchlog.be.domain.document;
 
-import com.matchlog.be.constant.document.DocumentType;
 import com.matchlog.be.domain.common.BaseTimeEntity;
 import com.matchlog.be.domain.match.Match;
 import com.matchlog.be.domain.player.Player;
 import com.matchlog.be.domain.team.Team;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -47,14 +44,11 @@ public class Document extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "matchId")
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private Match match;
 
     @Column(name = "isPinned", nullable = false)
     private boolean isPinned;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 10)
-    private DocumentType documentType;
 
     @Column(nullable = false, length = 200)
     private String title;
@@ -63,18 +57,11 @@ public class Document extends BaseTimeEntity {
     private String content;
 
     public static Document create(
-            Team team,
-            Player player,
-            Match match,
-            DocumentType documentType,
-            String title,
-            String content,
-            boolean isPinned) {
+            Team team, Player player, Match match, String title, String content, boolean isPinned) {
         return Document.builder()
                 .team(team)
                 .player(player)
                 .match(match)
-                .documentType(documentType)
                 .title(title)
                 .content(content)
                 .isPinned(isPinned)
@@ -90,11 +77,7 @@ public class Document extends BaseTimeEntity {
         }
     }
 
-    public void pin() {
-        this.isPinned = true;
-    }
-
-    public void unpin() {
-        this.isPinned = false;
+    public void togglePin() {
+        this.isPinned = !this.isPinned;
     }
 }
