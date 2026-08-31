@@ -12,32 +12,22 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateDocumentResponseDto {
+public class PinDocumentResponseDto {
 
     private Long boardId;
-    private Long teamId;
-    private Long playerId;
-    private String title;
-    private String content;
     private boolean isPinned;
-    private Long matchId;
 
     @JsonFormat(
             shape = JsonFormat.Shape.STRING,
             pattern = "yyyy-MM-dd'T'HH:mm:ss",
             timezone = "Asia/Seoul")
-    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-    public static CreateDocumentResponseDto from(Document document) {
-        return CreateDocumentResponseDto.builder()
+    public static PinDocumentResponseDto from(Document document) {
+        return PinDocumentResponseDto.builder()
                 .boardId(document.getId())
-                .teamId(document.getTeam().getId())
-                .playerId(document.getPlayer().getId())
-                .title(document.getTitle())
-                .content(document.getContent())
                 .isPinned(document.isPinned())
-                .matchId(document.getMatch() != null ? document.getMatch().getId() : null)
-                .createdAt(document.getCreatedAt())
+                .updatedAt(document.getUpdatedAt())
                 .build();
     }
 }

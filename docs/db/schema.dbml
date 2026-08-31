@@ -7,7 +7,7 @@
 //   1) 팀당 주장(isCaptain)/PK키커(isPkTaker)는 각 1명 — MySQL은 조건부(부분) 유니크
 //      인덱스를 지원하지 않으므로 DB 제약 불가. 서비스에서 보장.
 //      (CAPTAIN_ALREADY_ASSIGNED / PK_TAKER_ALREADY_ASSIGNED)
-//   2) VOTE/PLAYER_STAT/LINEUP_SPOT 의 playerId 는 해당 MATCH 의 팀 소속이어야 함
+//   2) VOTE/PLAYER_STAT/LINEUP_SPOT 의 playerId 는 해당 MATCH 의 팀 소속이어야 함 (VOTE는 별도 테이블)
 //      — 교차 테이블 제약이라 FK로 불가. 서비스에서 검증. (MEMBER_NOT_FOUND)
 //   3) TACTIC/FEEDBACK 의 coachId 는 해당 팀 MANAGER 여야 함 — 서비스에서 검증.
 //   4) rating(1~10)/quarter(1~4)/score(>=0)/number(>=0) 범위 — DBML은 CHECK 미표현.
@@ -42,11 +42,6 @@ Enum match_home_away {
 Enum match_type {
   SOCCER
   FOOTBALL // 풋살
-}
-
-Enum document_type {
-  VOTE
-  NOTE
 }
 
 Enum preferred_foot {
@@ -339,9 +334,8 @@ Table DOCUMENT {
   id bigint [pk, increment]
   teamId bigint [not null]
   playerId bigint [not null, note: '작성자']
-  matchId bigint [null, note: 'NOTE 타입은 경기 미연결 가능. 경기 삭제 시 NOTE 보존 위해 ON DELETE SET NULL(VOTE 게시글 삭제는 경기삭제 서비스에서 명시 처리)']
-  isPinned boolean [not null, default: false, note: '기존 오타 isExpendedDocuument → isPinned(고정 여부)로 교정. 엔티티 후속 수정 필요.']
-  documentType document_type [not null]
+  matchId bigint [null, note: '경기 연결 게시글(후기 등). 경기 삭제 시 게시글 보존 위해 ON DELETE SET NULL']
+  isPinned boolean [not null, default: false, note: '상단 고정 여부. MANAGER만 제어 가능']
   title varchar(200) [not null]
   content text [not null]
   createdAt datetime [not null]
@@ -349,7 +343,7 @@ Table DOCUMENT {
 
   indexes {
     (teamId)          [name: 'idx_document_team']       // 팀 게시글 목록
-    (teamId, matchId) [name: 'idx_document_team_match'] // 경기 연결 게시글(VOTE) 조회
+    (teamId, matchId) [name: 'idx_document_team_match'] // 경기 연결 게시글 조회
   }
 }
 
@@ -391,18 +385,19 @@ Ref: PERSONAL_FEEDBACK.coachId > PLAYER.id [delete: set null] // 작성 코치 �
 
 Ref: DOCUMENT.teamId > TEAM.id [delete: cascade]
 Ref: DOCUMENT.playerId > PLAYER.id [delete: cascade]
-Ref: DOCUMENT.matchId > "MATCH".id [delete: set null] // 경기 삭제 시 NOTE 보존(VOTE 게시글 삭제는 서비스에서)
+Ref: DOCUMENT.matchId > "MATCH".id [delete: set null] // 경기 삭제 시 게시글 보존
 
 // ---------------------------------------------------------------------------
 // 설계 노트 (정합성 관련 핵심 결정)
 //   - 유니크 제약으로 중복 방지: PARTICIPATION(team,player), VOTE(match,player),
 //     PLAYER_STAT(match,player), LINEUP(match,quarter), LINEUP_SPOT(lineup,player),
 //     MATCH(team,matchDate), TEAM/PERSONAL_FEEDBACK·TACTIC.
+//   - DOCUMENT는 NOTE 전용. VOTE는 별도 VOTE 테이블에서 독립 관리.
 //   - 값 도메인은 Enum으로 고정(varchar 임의 문자열 방지). 범위값(rating/quarter/score
 //     /number)은 DBML CHECK 미표현 → MySQL CHECK 또는 서비스 검증 권장(컬럼 note).
 //   - 삭제 정책: 기본 ON DELETE CASCADE. 단 "작성자/연결"만 끊고 기록은 보존해야 하는
 //     3곳은 ON DELETE SET NULL — TACTIC/FEEDBACK.coachId(작성 코치 탈퇴), DOCUMENT.matchId
-//     (경기 삭제 시 NOTE 보존; VOTE 게시글 삭제는 경기삭제 서비스에서 명시 처리).
+//     (경기 삭제 시 게시글 보존).
 //
 // [DB 스키마와 별개로 후속 반영 필요 — 코드 측]
 //   - 엔티티: @Table(uniqueConstraints=...), Participation 테이블명 단수화,
