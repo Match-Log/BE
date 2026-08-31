@@ -89,4 +89,9 @@ tasks.named('test') {
 			excludeTags project.property('excludeTags') as String
 		}
 	}
+	testLogging {
+		exceptionFormat = 'full'
+		showCauses = true
+		showStackTraces = true
+	}
 }
