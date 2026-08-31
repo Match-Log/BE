@@ -1,6 +1,8 @@
 spring:
   application:
     name: be
+  profiles:
+    active: local
   jpa:
     open-in-view: false
     properties:

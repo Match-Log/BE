@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:matchlog;MODE=MySQL
+    url: jdbc:h2:file:./data/matchlog;MODE=MySQL
     username: sa
     password:
     driver-class-name: org.h2.Driver
@@ -10,10 +10,11 @@ spring:
       path: /h2-console
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         show_sql: true
+        format_sql: true
   data:
     redis:
       host: localhost
