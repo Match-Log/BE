@@ -22,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -35,6 +36,7 @@ class GetPlayerProfileControllerTest {
 
     @Autowired private MockMvc mockMvc;
     @MockitoBean private PlayerService playerService;
+    @MockitoBean private RedisTemplate<String, String> redisTemplate;
 
     private UsernamePasswordAuthenticationToken authenticatedUser() {
         return new UsernamePasswordAuthenticationToken(USER_ID, null, Collections.emptyList());
