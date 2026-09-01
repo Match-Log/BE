@@ -89,6 +89,7 @@ tasks.named('test') {
 			excludeTags project.property('excludeTags') as String
 		}
 	}
+	systemProperty 'spring.profiles.active', 'test'
 	testLogging {
 		exceptionFormat = 'full'
 		showCauses = true
