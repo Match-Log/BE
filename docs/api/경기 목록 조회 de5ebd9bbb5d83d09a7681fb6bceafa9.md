@@ -38,7 +38,7 @@ Body 없음.
     "matchType": "SOCCER",
     "scoreHome": null,
     "scoreAway": null,
-    "isFinished": false
+    "finished": false
   }
 ]
 ```
