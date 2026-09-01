@@ -32,6 +32,7 @@ public class MatchResponseDto {
     private Integer scoreHome;
     private Integer scoreAway;
     private boolean isFinished;
+    private boolean isVoteDeadlinePassed;
 
     @JsonFormat(
             shape = JsonFormat.Shape.STRING,
@@ -57,6 +58,7 @@ public class MatchResponseDto {
                 .scoreHome(match.getScoreHome())
                 .scoreAway(match.getScoreAway())
                 .isFinished(match.isFinished())
+                .isVoteDeadlinePassed(match.isVoteDeadlinePassed())
                 .createdAt(match.getCreatedAt())
                 .updatedAt(match.getUpdatedAt())
                 .build();
