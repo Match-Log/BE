@@ -29,6 +29,8 @@ jobs:
         run: ./gradlew spotlessCheck --no-daemon
 
       - name: Unit Test (JUnit5)
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: ./gradlew test -PincludeTags=unit --no-daemon
 
       - name: Integration Test (TestContainers)

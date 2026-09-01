@@ -23,4 +23,20 @@ public class TeamAuthorizationService {
             throw new CustomException(CommonErrorCode.FORBIDDEN, forbiddenMessage);
         }
     }
+
+    /** playerId가 teamId 소속이 아니면 FORBIDDEN. */
+    public void requireMember(Long teamId, Long playerId) {
+        if (!participationRepository.existsByTeam_IdAndPlayer_Id(teamId, playerId)) {
+            throw new CustomException(CommonErrorCode.FORBIDDEN, "해당 팀에 접근 권한이 없습니다.");
+        }
+    }
+
+    /** playerId의 팀 내 role 반환. 비소속이면 FORBIDDEN. */
+    public ParticipationRole getRole(Long teamId, Long playerId) {
+        return participationRepository
+                .findByTeam_IdAndPlayer_Id(teamId, playerId)
+                .orElseThrow(
+                        () -> new CustomException(CommonErrorCode.FORBIDDEN, "해당 팀에 접근 권한이 없습니다."))
+                .getRole();
+    }
 }

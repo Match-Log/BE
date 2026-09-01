@@ -15,7 +15,8 @@ public enum AuthErrorCode implements ErrorCode {
     SAME_AS_CURRENT_PASSWORD(
             HttpStatus.BAD_REQUEST, "SAME_AS_CURRENT_PASSWORD", "새 비밀번호는 현재 비밀번호와 달라야 합니다."),
     INVALID_OAUTH_CODE(HttpStatus.BAD_REQUEST, "INVALID_OAUTH_CODE", "유효하지 않은 OAuth 인증 코드입니다."),
-    OAUTH_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "OAUTH_SERVER_ERROR", "소셜 로그인 서버에서 오류가 발생했습니다.");
+    OAUTH_SERVER_ERROR(HttpStatus.BAD_GATEWAY, "OAUTH_SERVER_ERROR", "소셜 로그인 서버에서 오류가 발생했습니다."),
+    PROVIDER_MISMATCH(HttpStatus.CONFLICT, "PROVIDER_MISMATCH", "이미 다른 방식으로 가입된 이메일입니다.");
 
     private final HttpStatus status;
     private final String code;
