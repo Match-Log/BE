@@ -44,6 +44,17 @@ public class User extends BaseTimeEntity {
     @Column(length = 20)
     private Provider provider;
 
+    @Column(length = 512)
+    private String refreshToken;
+
+    public void updateRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public void clearRefreshToken() {
+        this.refreshToken = null;
+    }
+
     public static User create(
             String email, String password, String name, String profileImage, Provider provider) {
         return User.builder()
