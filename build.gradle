@@ -93,5 +93,6 @@ tasks.named('test') {
 		exceptionFormat = 'full'
 		showCauses = true
 		showStackTraces = true
+		showStandardStreams = true
 	}
 }

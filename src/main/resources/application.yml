@@ -38,3 +38,4 @@ cors:
 logging:
   level:
     com.matchlog.be: DEBUG
+    org.hibernate.tool.schema: DEBUG
