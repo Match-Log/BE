@@ -1,7 +1,7 @@
-# 참석 투표 제출
+# 참석 투표 저장 (upsert)
 
-HTTP 메서드: POST
-HTTP 상태코드: 201 Created, 400 Bad Request, 401 Unauthorized, 404 Not Found, 409 Conflict, 500 Server Error
+HTTP 메서드: PUT
+HTTP 상태코드: 200 OK, 400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 409 Conflict, 500 Server Error
 URL Path (https:// 없으면 FE와 BE 인스턴스 주소): /api/v1/matches/{matchId}/votes
 버전: V1
 분류: Match
@@ -29,7 +29,9 @@ URL Path (https:// 없으면 FE와 BE 인스턴스 주소): /api/v1/matches/{mat
 
 # Response
 
-## 201 Created
+## 200 OK
+
+투표가 없으면 생성, 있으면 수정.
 
 ```json
 {
@@ -62,6 +64,17 @@ URL Path (https:// 없으면 FE와 BE 인스턴스 주소): /api/v1/matches/{mat
 }
 ```
 
+## 403 Forbidden
+
+```json
+{
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "해당 경기에 접근 권한이 없습니다."
+  }
+}
+```
+
 ## 404 Not Found
 
 ```json
@@ -78,8 +91,17 @@ URL Path (https:// 없으면 FE와 BE 인스턴스 주소): /api/v1/matches/{mat
 ```json
 {
   "error": {
-    "code": "ALREADY_VOTED",
-    "message": "이미 투표한 경기입니다. 수정은 PATCH를 사용하세요."
+    "code": "MATCH_ALREADY_FINISHED",
+    "message": "종료된 경기는 수정할 수 없습니다."
+  }
+}
+```
+
+```json
+{
+  "error": {
+    "code": "VOTE_DEADLINE_PASSED",
+    "message": "경기 시작 1시간 전부터 투표할 수 없습니다."
   }
 }
 ```

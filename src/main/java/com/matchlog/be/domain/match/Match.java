@@ -108,4 +108,8 @@ public class Match extends BaseTimeEntity {
     public void changeStatusAsFinished() {
         this.isFinished = true;
     }
+
+    public boolean isVoteDeadlinePassed() {
+        return LocalDateTime.now().isAfter(this.matchDate.minusHours(1));
+    }
 }
