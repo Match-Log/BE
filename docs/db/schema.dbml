@@ -211,15 +211,25 @@ Table LINEUP {
   }
 }
 
+Table MATCH_GUEST {
+  id        bigint      [pk, increment]
+  matchId   bigint      [not null]
+  name      varchar(50) [not null]
+  position  varchar(10) [null, note: '주 포지션 (선택)']
+  createdAt datetime    [not null]
+}
+
 Table LINEUP_SPOT {
   id bigint [pk, increment]
   lineupId bigint [not null]
-  playerId bigint [not null]
+  playerId bigint [null,  note: '팀 선수 — guestId와 둘 중 하나만 non-null (서비스 검증)']
+  guestId  bigint [null,  note: '용병 — playerId와 둘 중 하나만 non-null (서비스 검증)']
   position varchar(10) [not null, note: 'GK / LB / CB / RB 등']
   isStarter boolean [not null, note: 'true: 선발 / false: 후보']
 
   indexes {
-    (lineupId, playerId) [unique, name: 'uk_lineup_spot_lineup_player'] // 라인업 내 선수 중복 배치 방지 (DUPLICATE_PLAYER_IN_LINEUP)
+    (lineupId, playerId) [unique, name: 'uk_lineup_spot_lineup_player'] // 팀 선수 중복 배치 방지 (NULL은 MySQL에서 중복 허용)
+    (lineupId, guestId)  [unique, name: 'uk_lineup_spot_lineup_guest']  // 용병 중복 배치 방지
   }
 
   Note: '동일 라인업 내 선발 포지션 중복(DUPLICATE_POSITION_IN_LINEUP)은 isStarter 조건부라 DB 제약 불가 → 서비스 검증.'
@@ -363,8 +373,11 @@ Ref: VOTE.matchId > "MATCH".id [delete: cascade]
 Ref: VOTE.playerId > PLAYER.id [delete: cascade]
 
 Ref: LINEUP.matchId > "MATCH".id [delete: cascade]
+Ref: MATCH_GUEST.matchId > "MATCH".id [delete: cascade]
+
 Ref: LINEUP_SPOT.lineupId > LINEUP.id [delete: cascade]
 Ref: LINEUP_SPOT.playerId > PLAYER.id [delete: cascade]
+Ref: LINEUP_SPOT.guestId > MATCH_GUEST.id [delete: cascade]
 
 Ref: PLAYER_STAT.matchId > "MATCH".id [delete: cascade]
 Ref: PLAYER_STAT.playerId > PLAYER.id [delete: cascade]

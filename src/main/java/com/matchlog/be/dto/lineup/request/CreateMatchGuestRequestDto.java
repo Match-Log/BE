@@ -10,13 +10,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SaveLineupSpotRequestDto {
+public class CreateMatchGuestRequestDto {
 
-    private Long playerId;
+    @NotBlank private String name;
 
-    private Long guestId;
-
-    @NotBlank private String position;
-
-    private boolean isStarter;
+    private String position;
 }

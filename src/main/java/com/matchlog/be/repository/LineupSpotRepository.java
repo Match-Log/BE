@@ -9,15 +9,18 @@ import org.springframework.data.repository.query.Param;
 
 public interface LineupSpotRepository extends JpaRepository<LineupSpot, Long> {
 
-    // [PUT /api/v1/matches/{matchId}/lineup] 같은 선수 라인업 중복 배치 체크
-    boolean existsByLineup_IdAndPlayer_Id(Long lineupId, Long playerId);
-
     @Query(
-            "SELECT ls FROM LineupSpot ls JOIN FETCH ls.player p JOIN FETCH p.user WHERE ls.lineup.id = :lineupId")
+            "SELECT ls FROM LineupSpot ls"
+                    + " LEFT JOIN FETCH ls.player p LEFT JOIN FETCH p.user"
+                    + " LEFT JOIN FETCH ls.guest"
+                    + " WHERE ls.lineup.id = :lineupId")
     List<LineupSpot> findSpotsByLineupId(@Param("lineupId") Long lineupId);
 
     @Query(
-            "SELECT ls FROM LineupSpot ls JOIN FETCH ls.player p JOIN FETCH p.user WHERE ls.lineup.match.id = :matchId")
+            "SELECT ls FROM LineupSpot ls"
+                    + " LEFT JOIN FETCH ls.player p LEFT JOIN FETCH p.user"
+                    + " LEFT JOIN FETCH ls.guest"
+                    + " WHERE ls.lineup.match.id = :matchId")
     List<LineupSpot> findSpotsByMatchId(@Param("matchId") Long matchId);
 
     @Modifying(clearAutomatically = true)

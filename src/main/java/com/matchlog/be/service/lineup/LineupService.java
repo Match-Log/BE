@@ -3,6 +3,7 @@ package com.matchlog.be.service.lineup;
 import com.matchlog.be.domain.lineup.Lineup;
 import com.matchlog.be.domain.lineup.LineupSpot;
 import com.matchlog.be.domain.match.Match;
+import com.matchlog.be.domain.match.MatchGuest;
 import com.matchlog.be.domain.player.Player;
 import com.matchlog.be.dto.lineup.request.SaveLineupRequestDto;
 import com.matchlog.be.dto.lineup.request.SaveLineupSpotRequestDto;
@@ -15,11 +16,13 @@ import com.matchlog.be.exception.constant.LineupErrorCode;
 import com.matchlog.be.exception.constant.MatchErrorCode;
 import com.matchlog.be.repository.LineupRepository;
 import com.matchlog.be.repository.LineupSpotRepository;
+import com.matchlog.be.repository.MatchGuestRepository;
 import com.matchlog.be.repository.MatchRepository;
 import com.matchlog.be.repository.ParticipationRepository;
 import com.matchlog.be.repository.PlayerRepository;
 import com.matchlog.be.service.player.PlayerService;
 import com.matchlog.be.service.team.TeamAuthorizationService;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +40,7 @@ public class LineupService {
     private final LineupSpotRepository lineupSpotRepository;
     private final MatchRepository matchRepository;
     private final PlayerRepository playerRepository;
+    private final MatchGuestRepository matchGuestRepository;
     private final ParticipationRepository participationRepository;
     private final PlayerService playerService;
     private final TeamAuthorizationService teamAuthorizationService;
@@ -53,16 +57,30 @@ public class LineupService {
         teamAuthorizationService.requireManager(
                 match.getTeam().getId(), player.getId(), "라인업은 매니저만 저장할 수 있습니다.");
 
-        validateNoDuplicateSpots(request.getSpots());
+        validateSpots(request.getSpots(), matchId);
+
+        List<SaveLineupSpotRequestDto> playerSpots =
+                request.getSpots().stream().filter(s -> s.getPlayerId() != null).toList();
+        List<SaveLineupSpotRequestDto> guestSpots =
+                request.getSpots().stream().filter(s -> s.getGuestId() != null).toList();
 
         Map<Long, Player> playerMap =
                 playerRepository
                         .findAllById(
-                                request.getSpots().stream()
+                                playerSpots.stream()
                                         .map(SaveLineupSpotRequestDto::getPlayerId)
                                         .toList())
                         .stream()
                         .collect(Collectors.toMap(Player::getId, p -> p));
+
+        Map<Long, MatchGuest> guestMap =
+                matchGuestRepository
+                        .findAllById(
+                                guestSpots.stream()
+                                        .map(SaveLineupSpotRequestDto::getGuestId)
+                                        .toList())
+                        .stream()
+                        .collect(Collectors.toMap(MatchGuest::getId, g -> g));
 
         Lineup lineup =
                 lineupRepository
@@ -81,16 +99,22 @@ public class LineupService {
                                                         request.getQuarter(),
                                                         request.getFormation())));
 
-        List<LineupSpot> spots =
-                request.getSpots().stream()
-                        .map(
-                                s ->
-                                        LineupSpot.create(
-                                                lineup,
-                                                playerMap.get(s.getPlayerId()),
-                                                s.getPosition(),
-                                                s.isStarter()))
-                        .toList();
+        List<LineupSpot> spots = new ArrayList<>();
+        for (SaveLineupSpotRequestDto s : playerSpots) {
+            spots.add(
+                    LineupSpot.createForPlayer(
+                            lineup,
+                            playerMap.get(s.getPlayerId()),
+                            s.getPosition(),
+                            s.isStarter()));
+        }
+        for (SaveLineupSpotRequestDto s : guestSpots) {
+            MatchGuest guest = guestMap.get(s.getGuestId());
+            if (guest == null) throw new CustomException(LineupErrorCode.GUEST_NOT_FOUND);
+            if (!guest.getMatch().getId().equals(matchId))
+                throw new CustomException(LineupErrorCode.GUEST_NOT_IN_MATCH);
+            spots.add(LineupSpot.createForGuest(lineup, guest, s.getPosition(), s.isStarter()));
+        }
         lineupSpotRepository.saveAll(spots);
 
         return SaveLineupResponseDto.from(lineup);
@@ -128,11 +152,22 @@ public class LineupService {
                 .toList();
     }
 
-    private void validateNoDuplicateSpots(List<SaveLineupSpotRequestDto> spots) {
+    private void validateSpots(List<SaveLineupSpotRequestDto> spots, Long matchId) {
         Set<Long> playerIds = new HashSet<>();
+        Set<Long> guestIds = new HashSet<>();
+
         for (SaveLineupSpotRequestDto spot : spots) {
-            if (!playerIds.add(spot.getPlayerId())) {
+            boolean hasPlayer = spot.getPlayerId() != null;
+            boolean hasGuest = spot.getGuestId() != null;
+
+            if (hasPlayer == hasGuest) {
+                throw new CustomException(LineupErrorCode.INVALID_SPOT_SUBJECT);
+            }
+            if (hasPlayer && !playerIds.add(spot.getPlayerId())) {
                 throw new CustomException(LineupErrorCode.DUPLICATE_PLAYER_IN_LINEUP);
+            }
+            if (hasGuest && !guestIds.add(spot.getGuestId())) {
+                throw new CustomException(LineupErrorCode.DUPLICATE_GUEST_IN_LINEUP);
             }
         }
     }
