@@ -7,7 +7,15 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum LineupErrorCode implements ErrorCode {
     DUPLICATE_PLAYER_IN_LINEUP(
-            HttpStatus.BAD_REQUEST, "DUPLICATE_PLAYER_IN_LINEUP", "동일 선수는 한 번만 배치할 수 있습니다.");
+            HttpStatus.BAD_REQUEST, "DUPLICATE_PLAYER_IN_LINEUP", "동일 선수는 한 번만 배치할 수 있습니다."),
+    DUPLICATE_GUEST_IN_LINEUP(
+            HttpStatus.BAD_REQUEST, "DUPLICATE_GUEST_IN_LINEUP", "동일 용병은 한 번만 배치할 수 있습니다."),
+    INVALID_SPOT_SUBJECT(
+            HttpStatus.BAD_REQUEST,
+            "INVALID_SPOT_SUBJECT",
+            "각 스팟에는 팀 선수(playerId) 또는 용병(guestId) 중 하나만 지정해야 합니다."),
+    GUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "GUEST_NOT_FOUND", "존재하지 않는 용병입니다."),
+    GUEST_NOT_IN_MATCH(HttpStatus.BAD_REQUEST, "GUEST_NOT_IN_MATCH", "해당 경기에 등록된 용병이 아닙니다.");
 
     // DUPLICATE_POSITION_IN_LINEUP(
     //         HttpStatus.BAD_REQUEST, "DUPLICATE_POSITION_IN_LINEUP", "동일 포지션에 두 명을 배치할 수 없습니다.");
