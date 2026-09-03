@@ -1,6 +1,5 @@
 package com.matchlog.be.dto.auth.request;
 
-import com.matchlog.be.constant.user.Provider;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,5 +15,4 @@ public class SignupRequestDto {
     private String password;
     private String name;
     private String profileImage;
-    private Provider provider;
 }
