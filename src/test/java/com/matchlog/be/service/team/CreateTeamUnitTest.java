@@ -1,6 +1,7 @@
 package com.matchlog.be.service.team;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
@@ -15,6 +16,8 @@ import com.matchlog.be.domain.team.Team;
 import com.matchlog.be.domain.user.User;
 import com.matchlog.be.dto.team.request.CreateTeamRequestDto;
 import com.matchlog.be.dto.team.response.CreateTeamResponseDto;
+import com.matchlog.be.exception.CustomException;
+import com.matchlog.be.exception.constant.TeamErrorCode;
 import com.matchlog.be.repository.ParticipationRepository;
 import com.matchlog.be.repository.TeamRepository;
 import com.matchlog.be.service.player.PlayerService;
@@ -91,6 +94,26 @@ class CreateTeamUnitTest {
         teamService.createTeam(userId, request);
 
         verify(teamRepository, times(3)).existsByInviteCode(anyString());
+    }
+
+    @Test
+    void 이미_2개_팀에_소속되어_있으면_TEAM_LIMIT_EXCEEDED_예외가_발생한다() {
+        Long userId = 1L;
+        Player creator = Player.builder().id(10L).build();
+        CreateTeamRequestDto request = CreateTeamRequestDto.builder().name("FC 한강불사조").build();
+
+        when(playerService.getCurrentPlayer(userId)).thenReturn(creator);
+        when(participationRepository.countByPlayer_Id(10L)).thenReturn(2L);
+
+        assertThatThrownBy(() -> teamService.createTeam(userId, request))
+                .isInstanceOf(CustomException.class)
+                .satisfies(
+                        e ->
+                                assertThat(((CustomException) e).getErrorCode())
+                                        .isEqualTo(TeamErrorCode.TEAM_LIMIT_EXCEEDED));
+
+        verify(teamRepository, never()).save(any(Team.class));
+        verify(participationRepository, never()).save(any(Participation.class));
     }
 
     @Test

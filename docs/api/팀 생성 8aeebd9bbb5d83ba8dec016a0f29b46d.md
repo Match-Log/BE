@@ -1,7 +1,7 @@
 # 팀 생성
 
 HTTP 메서드: POST
-HTTP 상태코드: 201 Created, 400 Bad Request, 401 Unauthorized, 500 Server Error
+HTTP 상태코드: 201 Created, 400 Bad Request, 401 Unauthorized, 409 Conflict, 500 Server Error
 URL Path (https:// 없으면 FE와 BE 인스턴스 주소): /api/v1/teams
 버전: V1
 분류: Team
@@ -72,6 +72,19 @@ inviteCode는 서버에서 자동 생성됩니다. (재발급 불가)
   "error": {
     "code": "UNAUTHORIZED",
     "message": "인증이 필요합니다."
+  }
+}
+```
+
+## 409 Conflict → Service 검증
+
+한 선수는 최대 2개 팀까지만 소속될 수 있음
+
+```json
+{
+  "error": {
+    "code": "TEAM_LIMIT_EXCEEDED",
+    "message": "최대 2개 팀까지 소속될 수 있습니다."
   }
 }
 ```

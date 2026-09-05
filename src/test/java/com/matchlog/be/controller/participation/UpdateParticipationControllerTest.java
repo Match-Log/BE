@@ -16,7 +16,6 @@ import com.matchlog.be.dto.participation.response.UpdateParticipationResponseDto
 import com.matchlog.be.exception.CustomException;
 import com.matchlog.be.exception.constant.CommonErrorCode;
 import com.matchlog.be.exception.constant.ParticipationErrorCode;
-import com.matchlog.be.exception.constant.TeamErrorCode;
 import com.matchlog.be.service.participation.ParticipationService;
 import com.matchlog.be.util.jwt.JwtTokenProvider;
 import java.time.LocalDateTime;
@@ -126,23 +125,5 @@ class UpdateParticipationControllerTest {
                                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error.code", is("PARTICIPATION_NOT_FOUND")));
-    }
-
-    @Test
-    void 마지막_MANAGER를_강등하려_하면_409_LAST_MANAGER_CANNOT_LEAVE를_반환한다() throws Exception {
-        UpdateParticipationRequestDto request =
-                UpdateParticipationRequestDto.builder().role(ParticipationRole.PLAYER).build();
-
-        when(participationService.updateParticipation(
-                        eq(USER_ID), eq(1L), eq(10L), any(UpdateParticipationRequestDto.class)))
-                .thenThrow(new CustomException(TeamErrorCode.LAST_MANAGER_CANNOT_LEAVE));
-
-        mockMvc.perform(
-                        patch("/api/v1/teams/1/players/10")
-                                .with(authentication(authenticatedUser()))
-                                .contentType("application/json")
-                                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error.code", is("LAST_MANAGER_CANNOT_LEAVE")));
     }
 }

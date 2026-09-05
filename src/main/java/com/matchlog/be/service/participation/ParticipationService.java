@@ -178,13 +178,6 @@ public class ParticipationService {
         }
 
         if (changingRole) {
-            if (request.getRole() != ParticipationRole.MANAGER
-                    && target.getRole() == ParticipationRole.MANAGER
-                    && participationRepository.countByTeam_IdAndRole(
-                                    teamId, ParticipationRole.MANAGER)
-                            <= 1) {
-                throw new CustomException(TeamErrorCode.LAST_MANAGER_CANNOT_LEAVE);
-            }
             target.changeRole(request.getRole());
         }
 
