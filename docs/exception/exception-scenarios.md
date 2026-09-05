@@ -201,7 +201,6 @@ throw new CustomException(MatchErrorCode.MATCH_ALREADY_FINISHED, "종료된 경�
 | 요청자의 팀 내 역할이 MANAGER가 아님 | `CommonErrorCode.FORBIDDEN`, "참가 정보 수정 권한이 없습니다. (MANAGER만 가능)" |
 | teamId + targetPlayerId로 대상 Participation 조회 실패 | `ParticipationErrorCode.PARTICIPATION_NOT_FOUND` |
 | 자기 자신의 역할을 변경하려는 경우 | `CommonErrorCode.FORBIDDEN`, "본인의 역할은 변경할 수 없습니다." |
-| 변경 결과로 팀에 MANAGER가 0명이 되는 경우 | `TeamErrorCode.LAST_MANAGER_CANNOT_LEAVE`, "MANAGER가 한 명입니다." |
 
 ### `removeFromRoster(teamId, targetPlayerId, requestUserId)`
 | 조건 | throw |
@@ -501,7 +500,6 @@ if (managerCount <= 1) {
 | `AuthErrorCode.OAUTH_SERVER_ERROR` | 502 | 소셜 서버 응답 오류 | `AuthErrorCode.java` |
 | `UserErrorCode.MANAGER_TEAM_EXISTS` | 409 | 탈퇴 시 MANAGER 팀 존재 | `UserErrorCode.java` |
 | `TeamErrorCode.TEAM_LIMIT_EXCEEDED` | 409 | 최대 팀 소속 수 초과 | `TeamErrorCode.java` |
-| `TeamErrorCode.LAST_MANAGER_CANNOT_LEAVE` | 409 | 마지막 MANAGER 역할 변경 불가 | `TeamErrorCode.java` |
 | `TeamErrorCode.LAST_MANAGER_CANNOT_BE_REMOVED` | 409 | 마지막 MANAGER 제외 불가 | `TeamErrorCode.java` |
 | `TeamErrorCode.CAPTAIN_ALREADY_ASSIGNED` | 409 | 주장 중복 지정 | `TeamErrorCode.java` |
 | `TeamErrorCode.PK_TAKER_ALREADY_ASSIGNED` | 409 | PK 키커 중복 지정 | `TeamErrorCode.java` |

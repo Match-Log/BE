@@ -13,7 +13,6 @@ import com.matchlog.be.dto.participation.response.UpdateParticipationResponseDto
 import com.matchlog.be.exception.CustomException;
 import com.matchlog.be.exception.constant.CommonErrorCode;
 import com.matchlog.be.exception.constant.ParticipationErrorCode;
-import com.matchlog.be.exception.constant.TeamErrorCode;
 import com.matchlog.be.repository.ParticipationRepository;
 import com.matchlog.be.repository.TeamRepository;
 import com.matchlog.be.service.player.PlayerService;
@@ -182,36 +181,5 @@ class UpdateParticipationUnitTest {
                         e ->
                                 assertThat(((CustomException) e).getErrorCode())
                                         .isEqualTo(CommonErrorCode.FORBIDDEN));
-    }
-
-    @Test
-    void 마지막_MANAGER를_PLAYER로_강등하려_하면_LAST_MANAGER_CANNOT_LEAVE_예외가_발생한다() {
-        Player manager = Player.builder().id(9L).build();
-        Player target = Player.builder().id(10L).build();
-        Team team = Team.builder().id(TEAM_ID).build();
-        Participation managerParticipation =
-                Participation.create(manager, team, ParticipationRole.MANAGER);
-        Participation targetParticipation =
-                Participation.create(target, team, ParticipationRole.MANAGER);
-        UpdateParticipationRequestDto request =
-                UpdateParticipationRequestDto.builder().role(ParticipationRole.PLAYER).build();
-
-        when(playerService.getCurrentPlayer(USER_ID)).thenReturn(manager);
-        when(participationRepository.findByTeam_IdAndPlayer_Id(TEAM_ID, 9L))
-                .thenReturn(Optional.of(managerParticipation));
-        when(participationRepository.findByTeam_IdAndPlayer_Id(TEAM_ID, 10L))
-                .thenReturn(Optional.of(targetParticipation));
-        when(participationRepository.countByTeam_IdAndRole(TEAM_ID, ParticipationRole.MANAGER))
-                .thenReturn(1L);
-
-        assertThatThrownBy(
-                        () ->
-                                participationService.updateParticipation(
-                                        USER_ID, TEAM_ID, 10L, request))
-                .isInstanceOf(CustomException.class)
-                .satisfies(
-                        e ->
-                                assertThat(((CustomException) e).getErrorCode())
-                                        .isEqualTo(TeamErrorCode.LAST_MANAGER_CANNOT_LEAVE));
     }
 }
