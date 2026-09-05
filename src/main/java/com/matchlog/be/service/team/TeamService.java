@@ -30,6 +30,7 @@ public class TeamService {
     private static final String INVITE_CODE_CHARSET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     private static final int INVITE_CODE_LENGTH = 6;
     private static final int INVITE_CODE_MAX_ATTEMPTS = 10;
+    private static final long MAX_TEAMS_PER_PLAYER = 2;
 
     private final TeamRepository teamRepository;
     private final ParticipationRepository participationRepository;
@@ -40,6 +41,10 @@ public class TeamService {
     @Transactional
     public CreateTeamResponseDto createTeam(Long userId, CreateTeamRequestDto request) {
         Player creator = playerService.getCurrentPlayer(userId);
+
+        if (participationRepository.countByPlayer_Id(creator.getId()) >= MAX_TEAMS_PER_PLAYER) {
+            throw new CustomException(TeamErrorCode.TEAM_LIMIT_EXCEEDED);
+        }
 
         Team team =
                 teamRepository.save(

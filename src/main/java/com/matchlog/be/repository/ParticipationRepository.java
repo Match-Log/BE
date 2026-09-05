@@ -16,7 +16,7 @@ public interface ParticipationRepository extends JpaRepository<Participation, Lo
     // [POST /api/v1/teams/join] 팀 중복 가입 체크 (UX용 선체크 — DB 유니크 제약이 최종 안전장치)
     boolean existsByTeam_IdAndPlayer_Id(Long teamId, Long playerId);
 
-    // [POST /api/v1/teams/join] 팀 2개 제한 초과 여부 체크
+    // [POST /api/v1/teams, POST /api/v1/teams/join] 팀 2개 제한 초과 여부 체크
     long countByPlayer_Id(Long playerId);
 
     // [DELETE /api/v1/teams/{teamId}/players/{playerId}] 마지막 MANAGER 퇴출 방지 체크
