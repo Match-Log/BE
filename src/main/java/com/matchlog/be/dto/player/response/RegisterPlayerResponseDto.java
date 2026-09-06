@@ -1,6 +1,7 @@
 package com.matchlog.be.dto.player.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.matchlog.be.constant.lineup.Position;
 import com.matchlog.be.constant.player.PreferredFoot;
 import com.matchlog.be.domain.player.Player;
 import java.time.LocalDate;
@@ -26,6 +27,8 @@ public class RegisterPlayerResponseDto {
     private Integer weight;
     private PreferredFoot preferredFoot;
     private String career;
+    private Position preferredPosition;
+    private Position subPosition;
 
     @JsonFormat(
             shape = JsonFormat.Shape.STRING,
@@ -42,6 +45,8 @@ public class RegisterPlayerResponseDto {
                 .weight(player.getWeight())
                 .preferredFoot(player.getPreferredFoot())
                 .career(player.getCareer())
+                .preferredPosition(player.getPreferredPosition())
+                .subPosition(player.getSubPosition())
                 .createdAt(player.getCreatedAt())
                 .build();
     }

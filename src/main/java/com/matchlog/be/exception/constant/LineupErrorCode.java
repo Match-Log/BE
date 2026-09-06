@@ -15,7 +15,9 @@ public enum LineupErrorCode implements ErrorCode {
             "INVALID_SPOT_SUBJECT",
             "각 스팟에는 팀 선수(playerId) 또는 용병(guestId) 중 하나만 지정해야 합니다."),
     GUEST_NOT_FOUND(HttpStatus.NOT_FOUND, "GUEST_NOT_FOUND", "존재하지 않는 용병입니다."),
-    GUEST_NOT_IN_MATCH(HttpStatus.BAD_REQUEST, "GUEST_NOT_IN_MATCH", "해당 경기에 등록된 용병이 아닙니다.");
+    GUEST_NOT_IN_MATCH(HttpStatus.BAD_REQUEST, "GUEST_NOT_IN_MATCH", "해당 경기에 등록된 용병이 아닙니다."),
+    GUEST_IN_LINEUP(
+            HttpStatus.CONFLICT, "GUEST_IN_LINEUP", "라인업에 배치된 용병은 삭제할 수 없습니다. 먼저 라인업에서 제거해 주세요.");
 
     // DUPLICATE_POSITION_IN_LINEUP(
     //         HttpStatus.BAD_REQUEST, "DUPLICATE_POSITION_IN_LINEUP", "동일 포지션에 두 명을 배치할 수 없습니다.");

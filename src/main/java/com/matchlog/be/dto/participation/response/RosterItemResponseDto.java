@@ -1,6 +1,7 @@
 package com.matchlog.be.dto.participation.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.matchlog.be.constant.lineup.Position;
 import com.matchlog.be.constant.participation.ParticipationRole;
 import com.matchlog.be.domain.participation.Participation;
 import java.time.LocalDateTime;
@@ -23,8 +24,8 @@ public class RosterItemResponseDto {
     private String profileImage;
     private ParticipationRole role;
     private Integer number;
-    private String mainPosition;
-    private String subPosition;
+    private Position mainPosition;
+    private Position subPosition;
 
     @JsonFormat(
             shape = JsonFormat.Shape.STRING,

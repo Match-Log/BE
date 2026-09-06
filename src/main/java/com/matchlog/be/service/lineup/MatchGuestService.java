@@ -8,6 +8,7 @@ import com.matchlog.be.dto.lineup.response.MatchGuestResponseDto;
 import com.matchlog.be.exception.CustomException;
 import com.matchlog.be.exception.constant.LineupErrorCode;
 import com.matchlog.be.exception.constant.MatchErrorCode;
+import com.matchlog.be.repository.LineupSpotRepository;
 import com.matchlog.be.repository.MatchGuestRepository;
 import com.matchlog.be.repository.MatchRepository;
 import com.matchlog.be.service.player.PlayerService;
@@ -22,6 +23,7 @@ public class MatchGuestService {
 
     private final MatchGuestRepository matchGuestRepository;
     private final MatchRepository matchRepository;
+    private final LineupSpotRepository lineupSpotRepository;
     private final PlayerService playerService;
     private final TeamAuthorizationService teamAuthorizationService;
 
@@ -59,6 +61,10 @@ public class MatchGuestService {
 
         if (!guest.getMatch().getId().equals(matchId)) {
             throw new CustomException(LineupErrorCode.GUEST_NOT_IN_MATCH);
+        }
+
+        if (lineupSpotRepository.existsByGuest_Id(guestId)) {
+            throw new CustomException(LineupErrorCode.GUEST_IN_LINEUP);
         }
 
         matchGuestRepository.delete(guest);

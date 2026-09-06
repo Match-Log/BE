@@ -1,5 +1,6 @@
 package com.matchlog.be.domain.player;
 
+import com.matchlog.be.constant.lineup.Position;
 import com.matchlog.be.constant.player.PreferredFoot;
 import com.matchlog.be.domain.common.BaseTimeEntity;
 import com.matchlog.be.domain.user.User;
@@ -50,13 +51,23 @@ public class Player extends BaseTimeEntity {
     @Column(columnDefinition = "TEXT")
     private String career;
 
+    @Enumerated(EnumType.STRING)
+    @Column(length = 10)
+    private Position preferredPosition;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 10)
+    private Position subPosition;
+
     public static Player create(
             User user,
             LocalDate birthDate,
             Integer height,
             Integer weight,
             PreferredFoot preferredFoot,
-            String career) {
+            String career,
+            Position preferredPosition,
+            Position subPosition) {
         return Player.builder()
                 .user(user)
                 .birthDate(birthDate)
@@ -64,6 +75,8 @@ public class Player extends BaseTimeEntity {
                 .weight(weight)
                 .preferredFoot(preferredFoot)
                 .career(career)
+                .preferredPosition(preferredPosition)
+                .subPosition(subPosition)
                 .build();
     }
 
