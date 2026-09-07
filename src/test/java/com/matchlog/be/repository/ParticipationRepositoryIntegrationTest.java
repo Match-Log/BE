@@ -34,7 +34,9 @@ class ParticipationRepositoryIntegrationTest {
         User user =
                 userRepository.save(
                         User.create("dup@example.com", "pw", "임준혁", null, Provider.LOCAL));
-        Player player = playerRepository.save(Player.create(user, null, null, null, null, null));
+        Player player =
+                playerRepository.save(
+                        Player.create(user, null, null, null, null, null, null, null));
         Team team = teamRepository.save(Team.create("FC 한강불사조", null, null, null, null, "DUP123"));
 
         participationRepository.saveAndFlush(
