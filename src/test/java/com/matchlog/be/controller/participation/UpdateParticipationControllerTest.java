@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.matchlog.be.config.SecurityConfig;
+import com.matchlog.be.constant.lineup.Position;
 import com.matchlog.be.constant.participation.ParticipationRole;
 import com.matchlog.be.dto.participation.request.UpdateParticipationRequestDto;
 import com.matchlog.be.dto.participation.response.UpdateParticipationResponseDto;
@@ -51,7 +52,7 @@ class UpdateParticipationControllerTest {
     @Test
     void MANAGER면_200과_수정된_참가정보를_반환한다() throws Exception {
         UpdateParticipationRequestDto request =
-                UpdateParticipationRequestDto.builder().number(4).mainPosition("CB").build();
+                UpdateParticipationRequestDto.builder().number(4).mainPosition(Position.CB).build();
         UpdateParticipationResponseDto response =
                 UpdateParticipationResponseDto.builder()
                         .participationId(1L)
@@ -59,7 +60,7 @@ class UpdateParticipationControllerTest {
                         .playerId(10L)
                         .role(ParticipationRole.PLAYER)
                         .number(4)
-                        .mainPosition("CB")
+                        .mainPosition(Position.CB)
                         .updatedAt(LocalDateTime.of(2025, 7, 14, 9, 0))
                         .build();
 
