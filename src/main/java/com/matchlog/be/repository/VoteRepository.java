@@ -1,5 +1,6 @@
 package com.matchlog.be.repository;
 
+import com.matchlog.be.constant.vote.VoteStatus;
 import com.matchlog.be.domain.vote.Vote;
 import java.util.List;
 import java.util.Optional;
@@ -14,6 +15,8 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
 
     // [POST /api/v1/matches/{matchId}/votes] 중복 투표 체크
     boolean existsByMatch_IdAndPlayer_Id(Long matchId, Long playerId);
+
+    boolean existsByMatch_IdAndPlayer_IdAndStatus(Long matchId, Long playerId, VoteStatus status);
 
     // [GET /api/v1/matches/{matchId}/votes] 경기 투표 현황 조회 — Vote → Player → User fetch join
     // 규칙§3: 투표 현황 화면에 선수 이름·프로필 이미지 필요.

@@ -1,6 +1,7 @@
 package com.matchlog.be.service.feedback;
 
 import com.matchlog.be.constant.participation.ParticipationRole;
+import com.matchlog.be.constant.vote.VoteStatus;
 import com.matchlog.be.domain.feedback.PersonalFeedback;
 import com.matchlog.be.domain.feedback.TeamFeedback;
 import com.matchlog.be.domain.match.Match;
@@ -19,6 +20,7 @@ import com.matchlog.be.repository.ParticipationRepository;
 import com.matchlog.be.repository.PersonalFeedbackRepository;
 import com.matchlog.be.repository.PlayerRepository;
 import com.matchlog.be.repository.TeamFeedbackRepository;
+import com.matchlog.be.repository.VoteRepository;
 import com.matchlog.be.service.player.PlayerService;
 import com.matchlog.be.service.team.TeamAuthorizationService;
 import java.util.List;
@@ -35,6 +37,7 @@ public class FeedbackService {
     private final TeamFeedbackRepository teamFeedbackRepository;
     private final PersonalFeedbackRepository personalFeedbackRepository;
     private final ParticipationRepository participationRepository;
+    private final VoteRepository voteRepository;
     private final PlayerService playerService;
     private final TeamAuthorizationService teamAuthorizationService;
 
@@ -112,6 +115,11 @@ public class FeedbackService {
         if (!participationRepository.existsByTeam_IdAndPlayer_Id(
                 match.getTeam().getId(), targetPlayer.getId())) {
             throw new CustomException(TeamErrorCode.MEMBER_NOT_FOUND);
+        }
+
+        if (!voteRepository.existsByMatch_IdAndPlayer_IdAndStatus(
+                matchId, targetPlayer.getId(), VoteStatus.ATTEND)) {
+            throw new CustomException(MatchErrorCode.PLAYER_NOT_ATTENDED);
         }
 
         PersonalFeedback feedback =
