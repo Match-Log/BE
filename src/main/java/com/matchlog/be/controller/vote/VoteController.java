@@ -1,5 +1,6 @@
 package com.matchlog.be.controller.vote;
 
+import com.matchlog.be.constant.vote.VoteStatus;
 import com.matchlog.be.dto.vote.request.SubmitVoteRequestDto;
 import com.matchlog.be.dto.vote.response.VoteResponseDto;
 import com.matchlog.be.dto.vote.response.VoteStatusResponseDto;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -31,7 +33,9 @@ public class VoteController {
 
     @GetMapping
     public ResponseEntity<VoteStatusResponseDto> getVoteStatus(
-            @AuthenticationPrincipal Long userId, @PathVariable Long matchId) {
-        return ResponseEntity.ok(voteService.getVoteStatus(userId, matchId));
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long matchId,
+            @RequestParam(required = false) VoteStatus status) {
+        return ResponseEntity.ok(voteService.getVoteStatus(userId, matchId, status));
     }
 }

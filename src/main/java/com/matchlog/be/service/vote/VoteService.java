@@ -63,7 +63,7 @@ public class VoteService {
     }
 
     @Transactional(readOnly = true)
-    public VoteStatusResponseDto getVoteStatus(Long userId, Long matchId) {
+    public VoteStatusResponseDto getVoteStatus(Long userId, Long matchId, VoteStatus status) {
         Player player = playerService.getCurrentPlayer(userId);
 
         Match match =
@@ -79,13 +79,19 @@ public class VoteService {
         int pending = (int) votes.stream().filter(v -> v.getStatus() == VoteStatus.PENDING).count();
         int absent = (int) votes.stream().filter(v -> v.getStatus() == VoteStatus.ABSENT).count();
 
+        List<VoteItemResponseDto> filteredVotes =
+                votes.stream()
+                        .filter(v -> status == null || v.getStatus() == status)
+                        .map(VoteItemResponseDto::from)
+                        .toList();
+
         return VoteStatusResponseDto.builder()
                 .matchId(matchId)
                 .total(votes.size())
                 .attend(attend)
                 .pending(pending)
                 .absent(absent)
-                .votes(votes.stream().map(VoteItemResponseDto::from).toList())
+                .votes(filteredVotes)
                 .build();
     }
 }
