@@ -17,6 +17,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Getter
@@ -45,6 +47,7 @@ public class LineupSpot {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "guestId", nullable = true)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private MatchGuest guest;
 
     @Column(nullable = false, length = 10)

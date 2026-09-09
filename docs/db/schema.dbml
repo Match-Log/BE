@@ -119,6 +119,8 @@ Table PLAYER {
   weight int [null, note: 'kg']
   preferredFoot preferred_foot [null]
   career text [null]
+  preferredPosition varchar(10) [null]
+  subPosition varchar(10) [null]
   createdAt datetime [not null]
   updatedAt datetime [not null]
 }

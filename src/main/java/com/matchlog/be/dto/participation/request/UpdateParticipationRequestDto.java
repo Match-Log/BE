@@ -1,5 +1,6 @@
 package com.matchlog.be.dto.participation.request;
 
+import com.matchlog.be.constant.lineup.Position;
 import com.matchlog.be.constant.participation.ParticipationRole;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +15,6 @@ public class UpdateParticipationRequestDto {
 
     private ParticipationRole role;
     private Integer number;
-    private String mainPosition;
-    private String subPosition;
+    private Position mainPosition;
+    private Position subPosition;
 }

@@ -23,6 +23,8 @@ public interface LineupSpotRepository extends JpaRepository<LineupSpot, Long> {
                     + " WHERE ls.lineup.match.id = :matchId")
     List<LineupSpot> findSpotsByMatchId(@Param("matchId") Long matchId);
 
+    boolean existsByGuest_Id(Long guestId);
+
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM LineupSpot ls WHERE ls.lineup.id = :lineupId")
     void deleteByLineup_Id(@Param("lineupId") Long lineupId);

@@ -17,6 +17,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Getter
@@ -39,7 +41,8 @@ public class PersonalTactic extends BaseTimeEntity {
     private Player player;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "coachId", nullable = false)
+    @JoinColumn(name = "coachId", nullable = true)
+    @OnDelete(action = OnDeleteAction.SET_NULL)
     private Player coach;
 
     @Column(nullable = false, columnDefinition = "TEXT")

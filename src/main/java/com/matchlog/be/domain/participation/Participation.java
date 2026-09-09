@@ -1,5 +1,6 @@
 package com.matchlog.be.domain.participation;
 
+import com.matchlog.be.constant.lineup.Position;
 import com.matchlog.be.constant.participation.ParticipationRole;
 import com.matchlog.be.domain.player.Player;
 import com.matchlog.be.domain.team.Team;
@@ -56,11 +57,13 @@ public class Participation {
 
     private Integer number;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 10)
-    private String mainPosition;
+    private Position mainPosition;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 10)
-    private String subPosition;
+    private Position subPosition;
 
     @Column(nullable = false)
     private LocalDateTime joinedAt;
@@ -98,6 +101,8 @@ public class Participation {
                 .player(player)
                 .team(team)
                 .role(role)
+                .mainPosition(player.getPreferredPosition())
+                .subPosition(player.getSubPosition())
                 .joinedAt(now)
                 .updatedAt(now)
                 .build();
@@ -108,7 +113,7 @@ public class Participation {
         touch();
     }
 
-    public void changePosition(Integer number, String mainPosition, String subPosition) {
+    public void changePosition(Integer number, Position mainPosition, Position subPosition) {
         this.number = number;
         this.mainPosition = mainPosition;
         this.subPosition = subPosition;

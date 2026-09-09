@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
+import com.matchlog.be.constant.lineup.Position;
 import com.matchlog.be.constant.participation.ParticipationRole;
 import com.matchlog.be.domain.participation.Participation;
 import com.matchlog.be.domain.player.Player;
@@ -48,7 +49,7 @@ class UpdateParticipationUnitTest {
         Participation targetParticipation =
                 Participation.create(target, team, ParticipationRole.PLAYER);
         UpdateParticipationRequestDto request =
-                UpdateParticipationRequestDto.builder().number(4).mainPosition("CB").build();
+                UpdateParticipationRequestDto.builder().number(4).mainPosition(Position.CB).build();
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(manager);
         when(participationRepository.findByTeam_IdAndPlayer_Id(TEAM_ID, 9L))
@@ -60,7 +61,7 @@ class UpdateParticipationUnitTest {
                 participationService.updateParticipation(USER_ID, TEAM_ID, 10L, request);
 
         assertThat(response.getNumber()).isEqualTo(4);
-        assertThat(response.getMainPosition()).isEqualTo("CB");
+        assertThat(response.getMainPosition()).isEqualTo(Position.CB);
         assertThat(response.getRole()).isEqualTo(ParticipationRole.PLAYER);
     }
 
