@@ -267,21 +267,15 @@ throw new CustomException(MatchErrorCode.MATCH_ALREADY_FINISHED, "종료된 경�
 
 ## 7. VoteService
 
-### `submitVote(matchId, requestUserId, request)`
-| 조건 | throw |
-|---|---|
-| matchId로 경기 조회 실패 | `MatchErrorCode.MATCH_NOT_FOUND` |
-| 요청자가 해당 경기의 팀 소속이 아님 | `CommonErrorCode.FORBIDDEN`, "해당 경기에 접근 권한이 없습니다." |
-| 요청자가 해당 경기에 이미 투표한 기록이 있음 | `MatchErrorCode.ALREADY_VOTED` |
-| 이미 종료된 경기(isFinished=true)에 투표 시도 | `MatchErrorCode.MATCH_ALREADY_FINISHED`, "종료된 경기에는 투표할 수 없습니다." |
+### `saveVote(matchId, requestUserId, request)`
+투표가 없으면 생성, 있으면 수정하는 upsert 방식.
 
-### `updateVote(matchId, requestUserId, request)`
 | 조건 | throw |
 |---|---|
 | matchId로 경기 조회 실패 | `MatchErrorCode.MATCH_NOT_FOUND` |
 | 요청자가 해당 경기의 팀 소속이 아님 | `CommonErrorCode.FORBIDDEN`, "해당 경기에 접근 권한이 없습니다." |
-| 요청자의 기존 투표 기록 없음 (PATCH인데 투표 안 한 상태) | `MatchErrorCode.VOTE_NOT_FOUND`, "투표 기록이 없습니다. 먼저 투표해주세요." |
-| 이미 종료된 경기(isFinished=true)에 투표 수정 시도 | `MatchErrorCode.MATCH_ALREADY_FINISHED`, "종료된 경기의 투표는 수정할 수 없습니다." |
+| 이미 종료된 경기(isFinished=true)에 투표 시도 | `MatchErrorCode.MATCH_ALREADY_FINISHED`, "종료된 경기에는 투표할 수 없습니다." |
+| 투표 마감 시간이 지난 경우 | `MatchErrorCode.VOTE_DEADLINE_PASSED` |
 
 ### `getVoteStatus(matchId, requestUserId)`
 | 조건 | throw |
@@ -394,7 +388,6 @@ throw new CustomException(MatchErrorCode.MATCH_ALREADY_FINISHED, "종료된 경�
 | request.teamId로 팀 조회 실패 | `TeamErrorCode.TEAM_NOT_FOUND` |
 | 요청자가 해당 팀 소속이 아님 | `CommonErrorCode.FORBIDDEN`, "해당 팀에 접근 권한이 없습니다." |
 | 요청자의 팀 내 역할이 MANAGER가 아님 | `CommonErrorCode.FORBIDDEN`, "게시글 작성 권한이 없습니다. (MANAGER만 가능)" |
-| documentType이 VOTE인 경우 (직접 작성 불가) | `CommonErrorCode.INVALID_REQUEST_BODY`, "VOTE 게시글은 경기 생성 시 자동 생성됩니다." |
 | matchId가 포함됐는데 해당 matchId로 경기 조회 실패 | `MatchErrorCode.MATCH_NOT_FOUND` |
 | matchId가 포함됐는데 해당 경기가 요청 팀의 경기가 아닌 경우 | `CommonErrorCode.FORBIDDEN`, "해당 경기는 이 팀의 경기가 아닙니다." |
 
@@ -414,15 +407,13 @@ throw new CustomException(MatchErrorCode.MATCH_ALREADY_FINISHED, "종료된 경�
 | 조건 | throw |
 |---|---|
 | boardId로 게시글 조회 실패 | `DocumentErrorCode.BOARD_NOT_FOUND` |
-| 요청자가 작성자도 아니고 MANAGER도 아님 | `CommonErrorCode.FORBIDDEN`, "게시글 수정 권한이 없습니다. (작성자 또는 MANAGER만 가능)" |
-| documentType이 VOTE인 게시글 수정 시도 | `DocumentErrorCode.VOTE_DOCUMENT_CANNOT_BE_MODIFIED`, "투표 게시글은 수정할 수 없습니다." |
+| 요청자가 작성자가 아님 | `CommonErrorCode.FORBIDDEN`, "게시글 수정 권한이 없습니다." |
 
 ### `deleteDocument(boardId, requestUserId)`
 | 조건 | throw |
 |---|---|
 | boardId로 게시글 조회 실패 | `DocumentErrorCode.BOARD_NOT_FOUND` |
-| 요청자가 작성자도 아니고 MANAGER도 아님 | `CommonErrorCode.FORBIDDEN`, "게시글 삭제 권한이 없습니다. (작성자 또는 MANAGER만 가능)" |
-| documentType이 VOTE인 게시글 삭제 시도 | `DocumentErrorCode.VOTE_DOCUMENT_CANNOT_BE_DELETED`, "투표 게시글은 삭제할 수 없습니다. 경기를 삭제하세요." |
+| 요청자가 작성자가 아님 | `CommonErrorCode.FORBIDDEN`, "게시글 삭제 권한이 없습니다." |
 
 ---
 
@@ -507,9 +498,6 @@ if (managerCount <= 1) {
 | `MatchErrorCode.MATCH_ALREADY_EXISTS` | 409 | 동일 날짜 경기 중복 | `MatchErrorCode.java` |
 | `MatchErrorCode.MATCH_ALREADY_FINISHED` | 409 | 종료된 경기 수정/삭제 시도 | `MatchErrorCode.java` |
 | `MatchErrorCode.MATCH_NOT_FINISHED` | 409 | 미종료 경기에 스탯/피드백 입력 시도 | `MatchErrorCode.java` |
-| `MatchErrorCode.VOTE_NOT_FOUND` | 404 | 투표 기록 없음 | `MatchErrorCode.java` |
-| `DocumentErrorCode.VOTE_DOCUMENT_CANNOT_BE_MODIFIED` | 409 | VOTE 게시글 수정 불가 | `DocumentErrorCode.java` |
-| `DocumentErrorCode.VOTE_DOCUMENT_CANNOT_BE_DELETED` | 409 | VOTE 게시글 삭제 불가 | `DocumentErrorCode.java` |
 
 ### 새 파일 생성 필요
 
