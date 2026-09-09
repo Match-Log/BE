@@ -1,5 +1,6 @@
 package com.matchlog.be.service.tactic;
 
+import com.matchlog.be.constant.vote.VoteStatus;
 import com.matchlog.be.domain.match.Match;
 import com.matchlog.be.domain.player.Player;
 import com.matchlog.be.domain.tactic.PersonalTactic;
@@ -16,6 +17,7 @@ import com.matchlog.be.repository.ParticipationRepository;
 import com.matchlog.be.repository.PersonalTacticRepository;
 import com.matchlog.be.repository.PlayerRepository;
 import com.matchlog.be.repository.TeamTacticRepository;
+import com.matchlog.be.repository.VoteRepository;
 import com.matchlog.be.service.player.PlayerService;
 import com.matchlog.be.service.team.TeamAuthorizationService;
 import java.util.List;
@@ -32,6 +34,7 @@ public class TacticService {
     private final TeamTacticRepository teamTacticRepository;
     private final PersonalTacticRepository personalTacticRepository;
     private final ParticipationRepository participationRepository;
+    private final VoteRepository voteRepository;
     private final PlayerService playerService;
     private final TeamAuthorizationService teamAuthorizationService;
 
@@ -124,6 +127,11 @@ public class TacticService {
         if (!participationRepository.existsByTeam_IdAndPlayer_Id(
                 match.getTeam().getId(), targetPlayer.getId())) {
             throw new CustomException(TeamErrorCode.MEMBER_NOT_FOUND);
+        }
+
+        if (!voteRepository.existsByMatch_IdAndPlayer_IdAndStatus(
+                matchId, targetPlayer.getId(), VoteStatus.ATTEND)) {
+            throw new CustomException(MatchErrorCode.PLAYER_NOT_ATTENDED);
         }
 
         PersonalTactic tactic =
