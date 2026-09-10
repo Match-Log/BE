@@ -56,7 +56,8 @@ public class DocumentService {
                             .orElseThrow(() -> new CustomException(MatchErrorCode.MATCH_NOT_FOUND));
         }
 
-        boolean isPinned = role == ParticipationRole.MANAGER && request.isPinned();
+        boolean isPinned =
+                role == ParticipationRole.MANAGER && Boolean.TRUE.equals(request.getIsPinned());
 
         Document document =
                 documentRepository.save(

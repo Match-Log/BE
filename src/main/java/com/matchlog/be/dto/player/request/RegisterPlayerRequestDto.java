@@ -1,6 +1,7 @@
 package com.matchlog.be.dto.player.request;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.matchlog.be.constant.lineup.Position;
 import com.matchlog.be.constant.player.PreferredFoot;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
@@ -21,4 +22,6 @@ public class RegisterPlayerRequestDto {
     private Integer weight;
     private PreferredFoot preferredFoot;
     private String career;
+    private Position preferredPosition;
+    private Position subPosition;
 }

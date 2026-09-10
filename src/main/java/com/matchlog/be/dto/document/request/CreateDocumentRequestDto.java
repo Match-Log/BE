@@ -16,5 +16,5 @@ public class CreateDocumentRequestDto {
     private String title;
     private String content;
 
-    @Builder.Default private boolean isPinned = false;
+    @Builder.Default private Boolean isPinned = false;
 }

@@ -39,7 +39,9 @@ public class PlayerService {
                         request.getHeight(),
                         request.getWeight(),
                         request.getPreferredFoot(),
-                        request.getCareer());
+                        request.getCareer(),
+                        request.getPreferredPosition(),
+                        request.getSubPosition());
 
         return RegisterPlayerResponseDto.from(playerRepository.save(player));
     }
