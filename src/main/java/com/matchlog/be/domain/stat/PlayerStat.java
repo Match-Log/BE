@@ -3,7 +3,6 @@ package com.matchlog.be.domain.stat;
 import com.matchlog.be.domain.common.BaseTimeEntity;
 import com.matchlog.be.domain.match.Match;
 import com.matchlog.be.domain.player.Player;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -38,40 +37,19 @@ public class PlayerStat extends BaseTimeEntity {
     @JoinColumn(name = "playerId", nullable = false)
     private Player player;
 
-    @Column(nullable = false)
-    @Builder.Default
-    private int goals = 0;
+    private Integer goals;
 
-    @Column(nullable = false)
-    @Builder.Default
-    private int assists = 0;
-
-    @Column(nullable = false)
-    @Builder.Default
-    private int shots = 0;
+    private Integer assists;
 
     private Integer saves;
-
-    private Integer goalsConceded;
-
-    private Boolean cleanSheet;
 
     public static PlayerStat create(Match match, Player player) {
         return PlayerStat.builder().match(match).player(player).build();
     }
 
-    public void updateStats(
-            int goals,
-            int assists,
-            int shots,
-            Integer saves,
-            Integer goalsConceded,
-            Boolean cleanSheet) {
+    public void updateStats(Integer goals, Integer assists, Integer saves) {
         this.goals = goals;
         this.assists = assists;
-        this.shots = shots;
         this.saves = saves;
-        this.goalsConceded = goalsConceded;
-        this.cleanSheet = cleanSheet;
     }
 }
