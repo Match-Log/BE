@@ -85,7 +85,11 @@ public class Match extends BaseTimeEntity {
     }
 
     public void updateSchedule(
-            String opponent, LocalDateTime matchDate, String location, HomeAway homeAway) {
+            String opponent,
+            LocalDateTime matchDate,
+            String location,
+            HomeAway homeAway,
+            MatchType matchType) {
         if (opponent != null) {
             this.opponent = opponent;
         }
@@ -98,11 +102,18 @@ public class Match extends BaseTimeEntity {
         if (homeAway != null) {
             this.homeAway = homeAway;
         }
+        if (matchType != null) {
+            this.matchType = matchType;
+        }
     }
 
     public void recordScore(Integer scoreHome, Integer scoreAway) {
-        this.scoreHome = scoreHome;
-        this.scoreAway = scoreAway;
+        if (scoreHome != null) {
+            this.scoreHome = scoreHome;
+        }
+        if (scoreAway != null) {
+            this.scoreAway = scoreAway;
+        }
     }
 
     public void changeStatusAsFinished() {
