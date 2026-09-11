@@ -49,6 +49,14 @@ Enum preferred_foot {
   RIGHT
 }
 
+Enum career {
+  AMATEUR        // 순수 아마추어
+  MIDDLE_SCHOOL  // 중학교 선수 출신
+  HIGH_SCHOOL    // 고등학교 선수 출신
+  UNIVERSITY     // 대학교 선수 출신
+  ACTIVE         // 현역
+}
+
 Enum defensive_line_height {
   HIGH_LINE      // 하이라인
   MID_BLOCK      // 미드블록
@@ -118,7 +126,8 @@ Table PLAYER {
   height int [null, note: 'cm']
   weight int [null, note: 'kg']
   preferredFoot preferred_foot [null]
-  career text [null]
+  career career [null]
+  yearsOfExperience int [null, note: '구력(년수), 직접 입력']
   preferredPosition varchar(10) [null]
   subPosition varchar(10) [null]
   createdAt datetime [not null]

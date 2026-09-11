@@ -10,6 +10,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.matchlog.be.config.SecurityConfig;
+import com.matchlog.be.constant.lineup.Position;
+import com.matchlog.be.constant.player.Career;
 import com.matchlog.be.constant.player.PreferredFoot;
 import com.matchlog.be.dto.player.request.RegisterPlayerRequestDto;
 import com.matchlog.be.dto.player.response.RegisterPlayerResponseDto;
@@ -55,7 +57,10 @@ class RegisterPlayerControllerTest {
                         .height(178)
                         .weight(72)
                         .preferredFoot(PreferredFoot.RIGHT)
-                        .career("전 마포 유나이티드")
+                        .career(Career.AMATEUR)
+                        .yearsOfExperience(5)
+                        .preferredPosition(Position.CM)
+                        .subPosition(Position.CB)
                         .build();
 
         RegisterPlayerResponseDto response =
@@ -66,7 +71,10 @@ class RegisterPlayerControllerTest {
                         .height(178)
                         .weight(72)
                         .preferredFoot(PreferredFoot.RIGHT)
-                        .career("전 마포 유나이티드")
+                        .career(Career.AMATEUR)
+                        .yearsOfExperience(5)
+                        .preferredPosition(Position.CM)
+                        .subPosition(Position.CB)
                         .createdAt(LocalDateTime.of(2025, 7, 14, 9, 0))
                         .build();
 
@@ -97,7 +105,11 @@ class RegisterPlayerControllerTest {
 
     @Test
     void 이미_선수_등록된_유저면_409_PLAYER_ALREADY_EXISTS를_반환한다() throws Exception {
-        RegisterPlayerRequestDto request = RegisterPlayerRequestDto.builder().build();
+        RegisterPlayerRequestDto request =
+                RegisterPlayerRequestDto.builder()
+                        .preferredPosition(Position.CM)
+                        .subPosition(Position.CB)
+                        .build();
 
         when(playerService.registerPlayer(eq(USER_ID), any(RegisterPlayerRequestDto.class)))
                 .thenThrow(new CustomException(PlayerErrorCode.PLAYER_ALREADY_EXISTS));
@@ -109,5 +121,38 @@ class RegisterPlayerControllerTest {
                                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.error.code", is("PLAYER_ALREADY_EXISTS")));
+    }
+
+    @Test
+    void 포지션이_없으면_400_INVALID_REQUEST_BODY를_반환한다() throws Exception {
+        RegisterPlayerRequestDto request = RegisterPlayerRequestDto.builder().build();
+
+        mockMvc.perform(
+                        post("/api/v1/players")
+                                .with(authentication(authenticatedUser()))
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.code", is("INVALID_REQUEST_BODY")));
+    }
+
+    @Test
+    void 주포지션과_부포지션이_같으면_400_DUPLICATE_POSITION을_반환한다() throws Exception {
+        RegisterPlayerRequestDto request =
+                RegisterPlayerRequestDto.builder()
+                        .preferredPosition(Position.CM)
+                        .subPosition(Position.CM)
+                        .build();
+
+        when(playerService.registerPlayer(eq(USER_ID), any(RegisterPlayerRequestDto.class)))
+                .thenThrow(new CustomException(PlayerErrorCode.DUPLICATE_POSITION));
+
+        mockMvc.perform(
+                        post("/api/v1/players")
+                                .with(authentication(authenticatedUser()))
+                                .contentType("application/json")
+                                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.code", is("DUPLICATE_POSITION")));
     }
 }

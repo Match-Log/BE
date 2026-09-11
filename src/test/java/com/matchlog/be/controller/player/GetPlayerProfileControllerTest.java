@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.matchlog.be.config.SecurityConfig;
+import com.matchlog.be.constant.player.Career;
 import com.matchlog.be.constant.player.PreferredFoot;
 import com.matchlog.be.dto.player.response.PlayerProfileResponseDto;
 import com.matchlog.be.exception.CustomException;
@@ -52,7 +53,8 @@ class GetPlayerProfileControllerTest {
                         .height(178)
                         .weight(72)
                         .preferredFoot(PreferredFoot.RIGHT)
-                        .career("전 마포 유나이티드")
+                        .career(Career.AMATEUR)
+                        .yearsOfExperience(5)
                         .createdAt(LocalDateTime.of(2025, 7, 14, 9, 0))
                         .build();
 

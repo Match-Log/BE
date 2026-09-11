@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class RegisterPlayerResponseDto {
+public class UpdatePlayerProfileResponseDto {
 
     private Long playerId;
     private Long userId;
@@ -36,10 +36,10 @@ public class RegisterPlayerResponseDto {
             shape = JsonFormat.Shape.STRING,
             pattern = "yyyy-MM-dd'T'HH:mm:ss",
             timezone = "Asia/Seoul")
-    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
-    public static RegisterPlayerResponseDto from(Player player) {
-        return RegisterPlayerResponseDto.builder()
+    public static UpdatePlayerProfileResponseDto from(Player player) {
+        return UpdatePlayerProfileResponseDto.builder()
                 .playerId(player.getId())
                 .userId(player.getUser().getId())
                 .birthDate(player.getBirthDate())
@@ -50,7 +50,7 @@ public class RegisterPlayerResponseDto {
                 .yearsOfExperience(player.getYearsOfExperience())
                 .preferredPosition(player.getPreferredPosition())
                 .subPosition(player.getSubPosition())
-                .createdAt(player.getCreatedAt())
+                .updatedAt(player.getUpdatedAt())
                 .build();
     }
 }
