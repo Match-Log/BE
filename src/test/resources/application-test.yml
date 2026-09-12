@@ -2,3 +2,8 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+
+jwt:
+  secret: test-secret-key-for-matchlog-unit-tests-must-be-256-bits
+  access-token-expiry: 1800000
+  refresh-token-expiry: 604800000
