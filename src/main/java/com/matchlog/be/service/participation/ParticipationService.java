@@ -16,10 +16,13 @@ import com.matchlog.be.exception.CustomException;
 import com.matchlog.be.exception.constant.CommonErrorCode;
 import com.matchlog.be.exception.constant.ParticipationErrorCode;
 import com.matchlog.be.exception.constant.TeamErrorCode;
+import com.matchlog.be.repository.LineupSpotRepository;
 import com.matchlog.be.repository.ParticipationRepository;
 import com.matchlog.be.repository.TeamRepository;
+import com.matchlog.be.repository.VoteRepository;
 import com.matchlog.be.service.player.PlayerService;
 import com.matchlog.be.service.team.TeamAuthorizationService;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -34,6 +37,8 @@ public class ParticipationService {
 
     private final ParticipationRepository participationRepository;
     private final TeamRepository teamRepository;
+    private final LineupSpotRepository lineupSpotRepository;
+    private final VoteRepository voteRepository;
     private final PlayerService playerService;
     private final TeamAuthorizationService teamAuthorizationService;
 
@@ -103,6 +108,9 @@ public class ParticipationService {
             throw new CustomException(TeamErrorCode.LAST_MANAGER_CANNOT_BE_REMOVED);
         }
 
+        LocalDateTime now = LocalDateTime.now();
+        lineupSpotRepository.deleteByPlayerIdAndTeamId(targetPlayerId, teamId, now);
+        voteRepository.deleteByPlayerIdAndTeamId(targetPlayerId, teamId, now);
         participationRepository.delete(target);
     }
 

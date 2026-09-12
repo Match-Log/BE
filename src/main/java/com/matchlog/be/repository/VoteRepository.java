@@ -2,9 +2,11 @@ package com.matchlog.be.repository;
 
 import com.matchlog.be.constant.vote.VoteStatus;
 import com.matchlog.be.domain.vote.Vote;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -23,4 +25,20 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
     @Query(
             "SELECT v FROM Vote v JOIN FETCH v.player pl JOIN FETCH pl.user WHERE v.match.id = :matchId")
     List<Vote> findVotesByMatchId(@Param("matchId") Long matchId);
+
+    @Modifying(clearAutomatically = true)
+    @Query(
+            """
+            DELETE FROM Vote v
+            WHERE v.player.id = :playerId
+              AND v.match.id IN (
+                SELECT m.id FROM Match m
+                WHERE m.team.id = :teamId
+                  AND m.matchDate > :now
+              )
+            """)
+    void deleteByPlayerIdAndTeamId(
+            @Param("playerId") Long playerId,
+            @Param("teamId") Long teamId,
+            @Param("now") LocalDateTime now);
 }

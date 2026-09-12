@@ -2,6 +2,7 @@ package com.matchlog.be.service.participation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
@@ -19,8 +20,10 @@ import com.matchlog.be.exception.CustomException;
 import com.matchlog.be.exception.constant.CommonErrorCode;
 import com.matchlog.be.exception.constant.ParticipationErrorCode;
 import com.matchlog.be.exception.constant.TeamErrorCode;
+import com.matchlog.be.repository.LineupSpotRepository;
 import com.matchlog.be.repository.ParticipationRepository;
 import com.matchlog.be.repository.TeamRepository;
+import com.matchlog.be.repository.VoteRepository;
 import com.matchlog.be.service.player.PlayerService;
 import com.matchlog.be.service.team.TeamAuthorizationService;
 import java.util.Optional;
@@ -41,6 +44,8 @@ class RemoveFromRosterUnitTest {
 
     @Mock private ParticipationRepository participationRepository;
     @Mock private TeamRepository teamRepository;
+    @Mock private LineupSpotRepository lineupSpotRepository;
+    @Mock private VoteRepository voteRepository;
     @Mock private PlayerService playerService;
     @Mock private TeamAuthorizationService teamAuthorizationService;
     @InjectMocks private ParticipationService participationService;
@@ -60,6 +65,12 @@ class RemoveFromRosterUnitTest {
 
         participationService.removeFromRoster(USER_ID, TEAM_ID, 10L);
 
+        verify(lineupSpotRepository, times(1))
+                .deleteByPlayerIdAndTeamId(
+                        eq(10L), eq(TEAM_ID), any(java.time.LocalDateTime.class));
+        verify(voteRepository, times(1))
+                .deleteByPlayerIdAndTeamId(
+                        eq(10L), eq(TEAM_ID), any(java.time.LocalDateTime.class));
         verify(participationRepository, times(1)).delete(targetParticipation);
     }
 
