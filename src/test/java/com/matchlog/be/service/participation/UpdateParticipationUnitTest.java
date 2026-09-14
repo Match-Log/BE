@@ -14,6 +14,7 @@ import com.matchlog.be.dto.participation.response.UpdateParticipationResponseDto
 import com.matchlog.be.exception.CustomException;
 import com.matchlog.be.exception.constant.CommonErrorCode;
 import com.matchlog.be.exception.constant.ParticipationErrorCode;
+import com.matchlog.be.exception.constant.TeamErrorCode;
 import com.matchlog.be.repository.ParticipationRepository;
 import com.matchlog.be.repository.TeamRepository;
 import com.matchlog.be.service.player.PlayerService;
@@ -52,6 +53,7 @@ class UpdateParticipationUnitTest {
                 UpdateParticipationRequestDto.builder().number(4).mainPosition(Position.CB).build();
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(manager);
+        when(teamRepository.existsById(TEAM_ID)).thenReturn(true);
         when(participationRepository.findByTeam_IdAndPlayer_Id(TEAM_ID, 9L))
                 .thenReturn(Optional.of(managerParticipation));
         when(participationRepository.findByTeam_IdAndPlayer_Id(TEAM_ID, 10L))
@@ -78,6 +80,7 @@ class UpdateParticipationUnitTest {
                 UpdateParticipationRequestDto.builder().role(ParticipationRole.MANAGER).build();
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(manager);
+        when(teamRepository.existsById(TEAM_ID)).thenReturn(true);
         when(participationRepository.findByTeam_IdAndPlayer_Id(TEAM_ID, 9L))
                 .thenReturn(Optional.of(managerParticipation));
         when(participationRepository.findByTeam_IdAndPlayer_Id(TEAM_ID, 10L))
@@ -90,12 +93,33 @@ class UpdateParticipationUnitTest {
     }
 
     @Test
+    void 존재하지_않는_팀이면_TEAM_NOT_FOUND_예외가_발생한다() {
+        Player requester = Player.builder().id(9L).build();
+        UpdateParticipationRequestDto request =
+                UpdateParticipationRequestDto.builder().number(4).build();
+
+        when(playerService.getCurrentPlayer(USER_ID)).thenReturn(requester);
+        when(teamRepository.existsById(TEAM_ID)).thenReturn(false);
+
+        assertThatThrownBy(
+                        () ->
+                                participationService.updateParticipation(
+                                        USER_ID, TEAM_ID, 10L, request))
+                .isInstanceOf(CustomException.class)
+                .satisfies(
+                        e ->
+                                assertThat(((CustomException) e).getErrorCode())
+                                        .isEqualTo(TeamErrorCode.TEAM_NOT_FOUND));
+    }
+
+    @Test
     void 요청자가_팀_소속이_아니면_FORBIDDEN_예외가_발생한다() {
         Player requester = Player.builder().id(9L).build();
         UpdateParticipationRequestDto request =
                 UpdateParticipationRequestDto.builder().number(4).build();
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(requester);
+        when(teamRepository.existsById(TEAM_ID)).thenReturn(true);
         when(participationRepository.findByTeam_IdAndPlayer_Id(TEAM_ID, 9L))
                 .thenReturn(Optional.empty());
 
@@ -120,6 +144,7 @@ class UpdateParticipationUnitTest {
                 UpdateParticipationRequestDto.builder().number(4).build();
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(requester);
+        when(teamRepository.existsById(TEAM_ID)).thenReturn(true);
         when(participationRepository.findByTeam_IdAndPlayer_Id(TEAM_ID, 9L))
                 .thenReturn(Optional.of(requesterParticipation));
 
@@ -144,6 +169,7 @@ class UpdateParticipationUnitTest {
                 UpdateParticipationRequestDto.builder().number(4).build();
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(manager);
+        when(teamRepository.existsById(TEAM_ID)).thenReturn(true);
         when(participationRepository.findByTeam_IdAndPlayer_Id(TEAM_ID, 9L))
                 .thenReturn(Optional.of(managerParticipation));
         when(participationRepository.findByTeam_IdAndPlayer_Id(TEAM_ID, 999L))
@@ -170,6 +196,7 @@ class UpdateParticipationUnitTest {
                 UpdateParticipationRequestDto.builder().role(ParticipationRole.PLAYER).build();
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(manager);
+        when(teamRepository.existsById(TEAM_ID)).thenReturn(true);
         when(participationRepository.findByTeam_IdAndPlayer_Id(TEAM_ID, 9L))
                 .thenReturn(Optional.of(managerParticipation));
 
