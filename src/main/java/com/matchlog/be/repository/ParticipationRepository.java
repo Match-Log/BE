@@ -32,15 +32,4 @@ public interface ParticipationRepository extends JpaRepository<Participation, Lo
     // 규칙§3: Participation → Team 2단계, 목록 조회이므로 fetch join 필수.
     @Query("SELECT p FROM Participation p JOIN FETCH p.team WHERE p.player.id = :playerId")
     List<Participation> findMyTeamsByPlayerId(@Param("playerId") Long playerId);
-
-    // [PUT /api/v1/teams/{teamId}/players/{playerId}/kicker] 주장 중복 체크
-    // boolean isCaptain의 JavaBeans 프로퍼티명(captain)과 혼동 방지를 위해 @Query 명시.
-    // existsBy 대신 Optional: 기존 주장 해제(update)가 필요할 수 있어 엔티티 반환.
-    @Query("SELECT p FROM Participation p WHERE p.team.id = :teamId AND p.isCaptain = true")
-    Optional<Participation> findCurrentCaptainByTeamId(@Param("teamId") Long teamId);
-
-    // [PUT /api/v1/teams/{teamId}/players/{playerId}/kicker] PK 키커 중복 체크
-    // isPkTaker 동일 이유.
-    @Query("SELECT p FROM Participation p WHERE p.team.id = :teamId AND p.isPkTaker = true")
-    Optional<Participation> findCurrentPkTakerByTeamId(@Param("teamId") Long teamId);
 }
