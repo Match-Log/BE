@@ -2,7 +2,9 @@ package com.matchlog.be.dto.document.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.matchlog.be.domain.document.Document;
+import com.matchlog.be.dto.comment.response.CommentResponseDto;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -34,7 +36,9 @@ public class DocumentResponseDto {
             timezone = "Asia/Seoul")
     private LocalDateTime updatedAt;
 
-    public static DocumentResponseDto from(Document document) {
+    private List<CommentResponseDto> comments;
+
+    public static DocumentResponseDto from(Document document, List<CommentResponseDto> comments) {
         return DocumentResponseDto.builder()
                 .boardId(document.getId())
                 .teamId(document.getTeam().getId())
@@ -45,6 +49,7 @@ public class DocumentResponseDto {
                 .matchId(document.getMatch() != null ? document.getMatch().getId() : null)
                 .createdAt(document.getCreatedAt())
                 .updatedAt(document.getUpdatedAt())
+                .comments(comments)
                 .build();
     }
 }

@@ -357,6 +357,22 @@ Table DOCUMENT {
 }
 
 // ---------------------------------------------------------------------------
+// Comment
+// ---------------------------------------------------------------------------
+Table COMMENT {
+  id         bigint [pk, increment]
+  documentId bigint [not null]
+  playerId   bigint [not null, note: '작성자']
+  content    text   [not null]
+  createdAt  datetime [not null]
+  updatedAt  datetime [not null]
+
+  indexes {
+    (documentId, createdAt) [name: 'idx_comment_document_created'] // 문서별 댓글 목록 (생성순)
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Relationships (ON DELETE CASCADE — 하드 삭제 정책)
 //   부모 삭제 시 자식 기록도 함께 삭제. 회원 탈퇴/팀 삭제/경기 삭제 시나리오와 일치.
 //   ※ 정책 변경(soft delete 등) 시 여기 delete 액션만 조정.
@@ -398,6 +414,9 @@ Ref: PERSONAL_FEEDBACK.coachId > PLAYER.id [delete: set null] // 작성 코치 �
 Ref: DOCUMENT.teamId > TEAM.id [delete: cascade]
 Ref: DOCUMENT.playerId > PLAYER.id [delete: cascade]
 Ref: DOCUMENT.matchId > "MATCH".id [delete: set null] // 경기 삭제 시 게시글 보존
+
+Ref: COMMENT.documentId > DOCUMENT.id [delete: cascade]
+Ref: COMMENT.playerId > PLAYER.id [delete: cascade]
 
 // ---------------------------------------------------------------------------
 // 설계 노트 (정합성 관련 핵심 결정)
