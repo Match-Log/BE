@@ -5,6 +5,7 @@ import com.matchlog.be.domain.document.Document;
 import com.matchlog.be.domain.match.Match;
 import com.matchlog.be.domain.player.Player;
 import com.matchlog.be.domain.team.Team;
+import com.matchlog.be.dto.comment.response.CommentResponseDto;
 import com.matchlog.be.dto.document.request.CreateDocumentRequestDto;
 import com.matchlog.be.dto.document.request.UpdateDocumentRequestDto;
 import com.matchlog.be.dto.document.response.CreateDocumentResponseDto;
@@ -17,6 +18,7 @@ import com.matchlog.be.exception.constant.CommonErrorCode;
 import com.matchlog.be.exception.constant.DocumentErrorCode;
 import com.matchlog.be.exception.constant.MatchErrorCode;
 import com.matchlog.be.exception.constant.TeamErrorCode;
+import com.matchlog.be.repository.CommentRepository;
 import com.matchlog.be.repository.DocumentRepository;
 import com.matchlog.be.repository.MatchRepository;
 import com.matchlog.be.repository.TeamRepository;
@@ -32,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DocumentService {
 
     private final DocumentRepository documentRepository;
+    private final CommentRepository commentRepository;
     private final TeamRepository teamRepository;
     private final MatchRepository matchRepository;
     private final PlayerService playerService;
@@ -92,7 +95,12 @@ public class DocumentService {
 
         teamAuthorizationService.requireMember(document.getTeam().getId(), player.getId());
 
-        return DocumentResponseDto.from(document);
+        List<CommentResponseDto> comments =
+                commentRepository.findByDocument_IdWithPlayer(boardId).stream()
+                        .map(CommentResponseDto::from)
+                        .toList();
+
+        return DocumentResponseDto.from(document, comments);
     }
 
     @Transactional

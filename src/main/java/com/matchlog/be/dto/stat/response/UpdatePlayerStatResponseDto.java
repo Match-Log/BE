@@ -1,6 +1,7 @@
 package com.matchlog.be.dto.stat.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.matchlog.be.domain.stat.PlayerStat;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -12,16 +13,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UpdatePlayerStatResponseDto {
 
     private Long matchId;
     private Long playerId;
-    private int goals;
-    private int assists;
-    private int shots;
+    private Integer goals;
+    private Integer assists;
     private Integer saves;
-    private Integer goalsConceded;
-    private Boolean cleanSheet;
 
     @JsonFormat(
             shape = JsonFormat.Shape.STRING,
@@ -35,10 +34,7 @@ public class UpdatePlayerStatResponseDto {
                 .playerId(stat.getPlayer().getId())
                 .goals(stat.getGoals())
                 .assists(stat.getAssists())
-                .shots(stat.getShots())
                 .saves(stat.getSaves())
-                .goalsConceded(stat.getGoalsConceded())
-                .cleanSheet(stat.getCleanSheet())
                 .updatedAt(stat.getUpdatedAt())
                 .build();
     }

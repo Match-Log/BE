@@ -1,8 +1,9 @@
-package com.matchlog.be.domain.stat;
+package com.matchlog.be.domain.comment;
 
 import com.matchlog.be.domain.common.BaseTimeEntity;
-import com.matchlog.be.domain.match.Match;
+import com.matchlog.be.domain.document.Document;
 import com.matchlog.be.domain.player.Player;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -16,52 +17,38 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Entity
 @Getter
-@Table(name = "PLAYER_STAT")
+@Table(name = "COMMENT")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
-public class PlayerStat extends BaseTimeEntity {
+public class Comment extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "matchId", nullable = false)
-    private Match match;
+    @JoinColumn(name = "documentId", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private Document document;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "playerId", nullable = false)
     private Player player;
 
-    private Integer goals;
+    @Column(nullable = false, columnDefinition = "TEXT")
+    private String content;
 
-    private Integer assists;
-
-    private Integer saves;
-
-    private Integer goalsConceded;
-
-    private Boolean cleanSheet;
-
-    @Column(nullable = false)
-    @Builder.Default
-    private boolean isMvp = false;
-
-    public static PlayerStat create(Match match, Player player) {
-        return PlayerStat.builder().match(match).player(player).build();
+    public static Comment create(Document document, Player player, String content) {
+        return Comment.builder().document(document).player(player).content(content).build();
     }
 
-    public void updateStats(Integer goals, Integer assists, Integer saves) {
-        this.goals = goals;
-        this.assists = assists;
-        this.saves = saves;
-    }
-
-    public void changeMvpStatus(boolean isMvp) {
-        this.isMvp = isMvp;
+    public void updateContent(String content) {
+        this.content = content;
     }
 }

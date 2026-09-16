@@ -1,4 +1,4 @@
-package com.matchlog.be.dto.stat.request;
+package com.matchlog.be.dto.comment.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,11 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdatePlayerStatRequestDto {
+public class CreateCommentRequestDto {
 
-    private Integer goals;
-
-    private Integer assists;
-
-    private Integer saves;
+    private String content;
 }
