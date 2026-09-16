@@ -1,6 +1,7 @@
 package com.matchlog.be.repository;
 
 import com.matchlog.be.domain.lineup.LineupSpot;
+import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -28,4 +29,20 @@ public interface LineupSpotRepository extends JpaRepository<LineupSpot, Long> {
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM LineupSpot ls WHERE ls.lineup.id = :lineupId")
     void deleteByLineup_Id(@Param("lineupId") Long lineupId);
+
+    @Modifying(clearAutomatically = true)
+    @Query(
+            """
+            DELETE FROM LineupSpot ls
+            WHERE ls.player.id = :playerId
+              AND ls.lineup.id IN (
+                SELECT l.id FROM Lineup l
+                WHERE l.match.team.id = :teamId
+                  AND l.match.matchDate > :now
+              )
+            """)
+    void deleteByPlayerIdAndTeamId(
+            @Param("playerId") Long playerId,
+            @Param("teamId") Long teamId,
+            @Param("now") LocalDateTime now);
 }
