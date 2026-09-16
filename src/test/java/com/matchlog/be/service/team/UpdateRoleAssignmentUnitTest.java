@@ -78,7 +78,8 @@ class UpdateRoleAssignmentUnitTest {
         Long teamId = 1L;
         Player manager = Player.builder().id(9L).build();
         Team team = Team.builder().id(teamId).build();
-        Player captainPlayer = Player.builder().id(9L).user(User.builder().id(100L).build()).build();
+        Player captainPlayer =
+                Player.builder().id(9L).user(User.builder().id(100L).build()).build();
         Participation captainParticipation =
                 Participation.builder().id(9L).player(captainPlayer).team(team).build();
         TeamRoleAssignment assignment =
@@ -110,7 +111,9 @@ class UpdateRoleAssignmentUnitTest {
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(requester);
         when(teamRepository.existsById(teamId)).thenReturn(true);
-        doThrow(new CustomException(CommonErrorCode.FORBIDDEN, "세트피스 역할 지정 권한이 없습니다. (MANAGER만 가능)"))
+        doThrow(
+                        new CustomException(
+                                CommonErrorCode.FORBIDDEN, "세트피스 역할 지정 권한이 없습니다. (MANAGER만 가능)"))
                 .when(teamAuthorizationService)
                 .requireManager(eq(teamId), eq(9L), anyString());
 

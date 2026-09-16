@@ -53,7 +53,9 @@ class GetMvpVoteStatusControllerTest {
 
         when(mvpVoteService.getMvpVoteStatus(USER_ID, 1L)).thenReturn(response);
 
-        mockMvc.perform(get("/api/v1/matches/1/mvp-votes").with(authentication(authenticatedUser())))
+        mockMvc.perform(
+                        get("/api/v1/matches/1/mvp-votes")
+                                .with(authentication(authenticatedUser())))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.matchId", is(1)))
                 .andExpect(jsonPath("$.totalVotes", is(0)));
@@ -72,7 +74,8 @@ class GetMvpVoteStatusControllerTest {
                 .thenThrow(new CustomException(MatchErrorCode.MATCH_NOT_FOUND));
 
         mockMvc.perform(
-                        get("/api/v1/matches/999/mvp-votes").with(authentication(authenticatedUser())))
+                        get("/api/v1/matches/999/mvp-votes")
+                                .with(authentication(authenticatedUser())))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error.code", is("MATCH_NOT_FOUND")));
     }

@@ -49,7 +49,8 @@ class SaveMvpVoteControllerTest {
 
     @Test
     void 유효한_요청이면_200과_투표_현황을_반환한다() throws Exception {
-        SubmitMvpVoteRequestDto request = SubmitMvpVoteRequestDto.builder().votedPlayerId(9L).build();
+        SubmitMvpVoteRequestDto request =
+                SubmitMvpVoteRequestDto.builder().votedPlayerId(9L).build();
         MvpVoteStatusResponseDto response =
                 MvpVoteStatusResponseDto.builder()
                         .matchId(1L)
@@ -81,7 +82,8 @@ class SaveMvpVoteControllerTest {
 
     @Test
     void 토큰_없이_요청하면_401_UNAUTHORIZED를_반환한다() throws Exception {
-        SubmitMvpVoteRequestDto request = SubmitMvpVoteRequestDto.builder().votedPlayerId(9L).build();
+        SubmitMvpVoteRequestDto request =
+                SubmitMvpVoteRequestDto.builder().votedPlayerId(9L).build();
 
         mockMvc.perform(
                         put("/api/v1/matches/1/mvp-votes")
@@ -97,7 +99,8 @@ class SaveMvpVoteControllerTest {
 
         when(mvpVoteService.saveMvpVote(eq(USER_ID), eq(1L), any(SubmitMvpVoteRequestDto.class)))
                 .thenThrow(
-                        new CustomException(CommonErrorCode.INVALID_REQUEST_BODY, "votedPlayerId는 필수입니다."));
+                        new CustomException(
+                                CommonErrorCode.INVALID_REQUEST_BODY, "votedPlayerId는 필수입니다."));
 
         mockMvc.perform(
                         put("/api/v1/matches/1/mvp-votes")
@@ -110,7 +113,8 @@ class SaveMvpVoteControllerTest {
 
     @Test
     void 존재하지_않는_경기면_404_MATCH_NOT_FOUND를_반환한다() throws Exception {
-        SubmitMvpVoteRequestDto request = SubmitMvpVoteRequestDto.builder().votedPlayerId(9L).build();
+        SubmitMvpVoteRequestDto request =
+                SubmitMvpVoteRequestDto.builder().votedPlayerId(9L).build();
 
         when(mvpVoteService.saveMvpVote(eq(USER_ID), eq(999L), any(SubmitMvpVoteRequestDto.class)))
                 .thenThrow(new CustomException(MatchErrorCode.MATCH_NOT_FOUND));
@@ -126,7 +130,8 @@ class SaveMvpVoteControllerTest {
 
     @Test
     void 종료되지_않은_경기면_409_MATCH_NOT_FINISHED를_반환한다() throws Exception {
-        SubmitMvpVoteRequestDto request = SubmitMvpVoteRequestDto.builder().votedPlayerId(9L).build();
+        SubmitMvpVoteRequestDto request =
+                SubmitMvpVoteRequestDto.builder().votedPlayerId(9L).build();
 
         when(mvpVoteService.saveMvpVote(eq(USER_ID), eq(1L), any(SubmitMvpVoteRequestDto.class)))
                 .thenThrow(

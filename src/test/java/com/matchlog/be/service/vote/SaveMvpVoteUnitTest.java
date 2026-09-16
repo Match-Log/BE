@@ -84,7 +84,8 @@ class SaveMvpVoteUnitTest {
     void 첫_투표면_득표한_선수가_MVP로_기록된다() {
         Player votedPlayer =
                 Player.builder().id(3L).user(User.builder().id(30L).name("임준혁").build()).build();
-        SubmitMvpVoteRequestDto request = SubmitMvpVoteRequestDto.builder().votedPlayerId(3L).build();
+        SubmitMvpVoteRequestDto request =
+                SubmitMvpVoteRequestDto.builder().votedPlayerId(3L).build();
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(voter);
         when(matchRepository.findById(10L)).thenReturn(Optional.of(match));
@@ -115,7 +116,8 @@ class SaveMvpVoteUnitTest {
     void 동점이면_동점자_전원이_MVP가_된다() {
         Player p3 = Player.builder().id(3L).user(User.builder().id(30L).name("A").build()).build();
         Player p4 = Player.builder().id(4L).user(User.builder().id(40L).name("B").build()).build();
-        SubmitMvpVoteRequestDto request = SubmitMvpVoteRequestDto.builder().votedPlayerId(4L).build();
+        SubmitMvpVoteRequestDto request =
+                SubmitMvpVoteRequestDto.builder().votedPlayerId(4L).build();
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(voter);
         when(matchRepository.findById(10L)).thenReturn(Optional.of(match));
@@ -142,7 +144,8 @@ class SaveMvpVoteUnitTest {
     void 아직_스탯_row가_없는_선수가_득표하면_스탯_row가_새로_생성되며_MVP로_기록된다() {
         Player votedPlayer =
                 Player.builder().id(5L).user(User.builder().id(50L).name("C").build()).build();
-        SubmitMvpVoteRequestDto request = SubmitMvpVoteRequestDto.builder().votedPlayerId(5L).build();
+        SubmitMvpVoteRequestDto request =
+                SubmitMvpVoteRequestDto.builder().votedPlayerId(5L).build();
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(voter);
         when(matchRepository.findById(10L)).thenReturn(Optional.of(match));
@@ -153,7 +156,8 @@ class SaveMvpVoteUnitTest {
         when(mvpVoteRepository.save(any(MvpVote.class))).thenAnswer(inv -> inv.getArgument(0));
         when(mvpVoteRepository.tallyByMatchId(10L)).thenReturn(List.of(tally(5L, 1)));
         when(playerStatRepository.findStatsByMatchId(10L)).thenReturn(List.of());
-        when(playerStatRepository.save(any(PlayerStat.class))).thenAnswer(inv -> inv.getArgument(0));
+        when(playerStatRepository.save(any(PlayerStat.class)))
+                .thenAnswer(inv -> inv.getArgument(0));
         when(playerRepository.findAllWithUserByIdIn(List.of(5L))).thenReturn(List.of(votedPlayer));
 
         mvpVoteService.saveMvpVote(USER_ID, 10L, request);
@@ -179,7 +183,8 @@ class SaveMvpVoteUnitTest {
 
     @Test
     void 존재하지_않는_경기면_MATCH_NOT_FOUND_예외가_발생한다() {
-        SubmitMvpVoteRequestDto request = SubmitMvpVoteRequestDto.builder().votedPlayerId(3L).build();
+        SubmitMvpVoteRequestDto request =
+                SubmitMvpVoteRequestDto.builder().votedPlayerId(3L).build();
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(voter);
         when(matchRepository.findById(999L)).thenReturn(Optional.empty());
@@ -194,7 +199,8 @@ class SaveMvpVoteUnitTest {
 
     @Test
     void 팀_소속이_아니면_FORBIDDEN_예외가_발생한다() {
-        SubmitMvpVoteRequestDto request = SubmitMvpVoteRequestDto.builder().votedPlayerId(3L).build();
+        SubmitMvpVoteRequestDto request =
+                SubmitMvpVoteRequestDto.builder().votedPlayerId(3L).build();
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(voter);
         when(matchRepository.findById(10L)).thenReturn(Optional.of(match));
@@ -213,7 +219,8 @@ class SaveMvpVoteUnitTest {
     @Test
     void 종료되지_않은_경기면_MATCH_NOT_FINISHED_예외가_발생한다() {
         Match ongoingMatch = Match.builder().id(10L).team(team).isFinished(false).build();
-        SubmitMvpVoteRequestDto request = SubmitMvpVoteRequestDto.builder().votedPlayerId(3L).build();
+        SubmitMvpVoteRequestDto request =
+                SubmitMvpVoteRequestDto.builder().votedPlayerId(3L).build();
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(voter);
         when(matchRepository.findById(10L)).thenReturn(Optional.of(ongoingMatch));
@@ -248,7 +255,8 @@ class SaveMvpVoteUnitTest {
     @Test
     void 팀_소속이_아닌_선수에게_투표하면_MEMBER_NOT_FOUND_예외가_발생한다() {
         Player votedPlayer = Player.builder().id(3L).build();
-        SubmitMvpVoteRequestDto request = SubmitMvpVoteRequestDto.builder().votedPlayerId(3L).build();
+        SubmitMvpVoteRequestDto request =
+                SubmitMvpVoteRequestDto.builder().votedPlayerId(3L).build();
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(voter);
         when(matchRepository.findById(10L)).thenReturn(Optional.of(match));

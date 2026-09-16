@@ -63,7 +63,8 @@ class GetPlayerStatSummaryUnitTest {
         when(aggregate.getMvpCount()).thenReturn(1L);
         when(playerStatRepository.aggregateByPlayerAndPeriod(TEAM_ID, PLAYER_ID, from, to))
                 .thenReturn(aggregate);
-        when(personalFeedbackRepository.averageRatingByPlayerAndPeriod(TEAM_ID, PLAYER_ID, from, to))
+        when(personalFeedbackRepository.averageRatingByPlayerAndPeriod(
+                        TEAM_ID, PLAYER_ID, from, to))
                 .thenReturn(7.5);
 
         PlayerStatSummaryResponseDto response =
@@ -102,7 +103,8 @@ class GetPlayerStatSummaryUnitTest {
         when(aggregate.getMvpCount()).thenReturn(0L);
         when(playerStatRepository.aggregateByPlayerAndPeriod(TEAM_ID, PLAYER_ID, from, to))
                 .thenReturn(aggregate);
-        when(personalFeedbackRepository.averageRatingByPlayerAndPeriod(TEAM_ID, PLAYER_ID, from, to))
+        when(personalFeedbackRepository.averageRatingByPlayerAndPeriod(
+                        TEAM_ID, PLAYER_ID, from, to))
                 .thenReturn(null);
 
         PlayerStatSummaryResponseDto response =
@@ -126,7 +128,12 @@ class GetPlayerStatSummaryUnitTest {
         assertThatThrownBy(
                         () ->
                                 playerStatService.getStatSummary(
-                                        TEAM_ID, PLAYER_ID, USER_ID, StatPeriod.MONTHLY, 2026, null))
+                                        TEAM_ID,
+                                        PLAYER_ID,
+                                        USER_ID,
+                                        StatPeriod.MONTHLY,
+                                        2026,
+                                        null))
                 .isInstanceOf(CustomException.class)
                 .satisfies(
                         e ->

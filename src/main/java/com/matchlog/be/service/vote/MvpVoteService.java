@@ -47,7 +47,8 @@ public class MvpVoteService {
     public MvpVoteStatusResponseDto saveMvpVote(
             Long userId, Long matchId, SubmitMvpVoteRequestDto request) {
         if (request.getVotedPlayerId() == null) {
-            throw new CustomException(CommonErrorCode.INVALID_REQUEST_BODY, "votedPlayerId는 필수입니다.");
+            throw new CustomException(
+                    CommonErrorCode.INVALID_REQUEST_BODY, "votedPlayerId는 필수입니다.");
         }
 
         Player voter = playerService.getCurrentPlayer(userId);
@@ -56,7 +57,8 @@ public class MvpVoteService {
         teamAuthorizationService.requireMember(match.getTeam().getId(), voter.getId());
 
         if (!match.isFinished()) {
-            throw new CustomException(MatchErrorCode.MATCH_NOT_FINISHED, "종료된 경기에만 MVP 투표를 할 수 있습니다.");
+            throw new CustomException(
+                    MatchErrorCode.MATCH_NOT_FINISHED, "종료된 경기에만 MVP 투표를 할 수 있습니다.");
         }
 
         Player votedPlayer =
@@ -119,7 +121,10 @@ public class MvpVoteService {
                 Player winner =
                         playerRepository
                                 .findById(winnerId)
-                                .orElseThrow(() -> new CustomException(PlayerErrorCode.PLAYER_NOT_FOUND));
+                                .orElseThrow(
+                                        () ->
+                                                new CustomException(
+                                                        PlayerErrorCode.PLAYER_NOT_FOUND));
                 PlayerStat newStat = PlayerStat.create(match, winner);
                 newStat.changeMvpStatus(true);
                 playerStatRepository.save(newStat);
@@ -148,7 +153,10 @@ public class MvpVoteService {
                                     Player player = playerById.get(t.getVotedPlayerId());
                                     return MvpVoteResultItemResponseDto.builder()
                                             .playerId(t.getVotedPlayerId())
-                                            .name(player == null ? null : player.getUser().getName())
+                                            .name(
+                                                    player == null
+                                                            ? null
+                                                            : player.getUser().getName())
                                             .voteCount(t.getVoteCount().intValue())
                                             .build();
                                 })

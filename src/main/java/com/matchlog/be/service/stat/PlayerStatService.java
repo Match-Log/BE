@@ -1,5 +1,3 @@
-
-
 package com.matchlog.be.service.stat;
 
 import com.matchlog.be.constant.stat.StatPeriod;
@@ -41,7 +39,8 @@ public class PlayerStatService {
 
         if (period == StatPeriod.MONTHLY && (month == null || month < 1 || month > 12)) {
             throw new CustomException(
-                    CommonErrorCode.INVALID_REQUEST_BODY, "period=MONTHLY일 때 month는 1~12 사이여야 합니다.");
+                    CommonErrorCode.INVALID_REQUEST_BODY,
+                    "period=MONTHLY일 때 month는 1~12 사이여야 합니다.");
         }
 
         LocalDateTime from;
@@ -57,7 +56,8 @@ public class PlayerStatService {
         PlayerStatAggregate aggregate =
                 playerStatRepository.aggregateByPlayerAndPeriod(teamId, playerId, from, to);
         Double averageRating =
-                personalFeedbackRepository.averageRatingByPlayerAndPeriod(teamId, playerId, from, to);
+                personalFeedbackRepository.averageRatingByPlayerAndPeriod(
+                        teamId, playerId, from, to);
 
         return PlayerStatSummaryResponseDto.builder()
                 .playerId(playerId)
