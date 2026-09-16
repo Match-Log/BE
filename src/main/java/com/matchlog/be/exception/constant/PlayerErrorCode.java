@@ -7,7 +7,8 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum PlayerErrorCode implements ErrorCode {
     PLAYER_NOT_FOUND(HttpStatus.NOT_FOUND, "PLAYER_NOT_FOUND", "존재하지 않는 선수입니다."),
-    PLAYER_ALREADY_EXISTS(HttpStatus.CONFLICT, "PLAYER_ALREADY_EXISTS", "이미 선수 등록이 완료된 계정입니다.");
+    PLAYER_ALREADY_EXISTS(HttpStatus.CONFLICT, "PLAYER_ALREADY_EXISTS", "이미 선수 등록이 완료된 계정입니다."),
+    DUPLICATE_POSITION(HttpStatus.BAD_REQUEST, "DUPLICATE_POSITION", "주포지션과 부포지션은 서로 달라야 합니다.");
 
     private final HttpStatus status;
     private final String code;

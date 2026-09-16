@@ -1,11 +1,8 @@
 package com.matchlog.be.controller.participation;
 
-import com.matchlog.be.dto.participation.request.AssignKickerRequestDto;
 import com.matchlog.be.dto.participation.request.JoinTeamRequestDto;
 import com.matchlog.be.dto.participation.request.UpdateParticipationRequestDto;
-import com.matchlog.be.dto.participation.response.AssignKickerResponseDto;
 import com.matchlog.be.dto.participation.response.JoinTeamResponseDto;
-import com.matchlog.be.dto.participation.response.KickerResponseDto;
 import com.matchlog.be.dto.participation.response.RosterItemResponseDto;
 import com.matchlog.be.dto.participation.response.UpdateParticipationResponseDto;
 import com.matchlog.be.service.participation.ParticipationService;
@@ -20,7 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,24 +48,6 @@ public class ParticipationController {
             @PathVariable Long playerId) {
         participationService.removeFromRoster(userId, teamId, playerId);
         return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/{teamId}/players/{playerId}/kicker")
-    public ResponseEntity<AssignKickerResponseDto> assignKicker(
-            @AuthenticationPrincipal Long userId,
-            @PathVariable Long teamId,
-            @PathVariable Long playerId,
-            @RequestBody AssignKickerRequestDto request) {
-        return ResponseEntity.ok(
-                participationService.assignKicker(userId, teamId, playerId, request));
-    }
-
-    @GetMapping("/{teamId}/players/{playerId}/kicker")
-    public ResponseEntity<KickerResponseDto> getKicker(
-            @AuthenticationPrincipal Long userId,
-            @PathVariable Long teamId,
-            @PathVariable Long playerId) {
-        return ResponseEntity.ok(participationService.getKicker(userId, teamId, playerId));
     }
 
     @PatchMapping("/{teamId}/players/{playerId}")

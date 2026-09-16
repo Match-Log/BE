@@ -4,14 +4,20 @@
 // - 설계 근거/서비스 책임 노트는 파일 하단 "설계 노트" 블록 참고.
 //
 // [DB로 강제할 수 없어 서비스 레이어에서 반드시 보장해야 하는 불변식]
-//   1) 팀당 주장(isCaptain)/PK키커(isPkTaker)는 각 1명 — MySQL은 조건부(부분) 유니크
-//      인덱스를 지원하지 않으므로 DB 제약 불가. 서비스에서 보장.
-//      (CAPTAIN_ALREADY_ASSIGNED / PK_TAKER_ALREADY_ASSIGNED)
+//   1) TEAM_ROLE_ASSIGNMENT의 각 역할 participationId는 같은 teamId 소속 PARTICIPATION
+//      이어야 함 — 교차 테이블 제약이라 FK로 불가. 서비스에서 검증. (MEMBER_NOT_FOUND)
+//      (역할당 1명 제약 자체는 컬럼 구조상 구조적으로 보장됨 — 과거 PARTICIPATION.isCaptain
+//      등 boolean 방식은 여러 행이 true일 수 있어 서비스 체크가 필요했으나, FK 컬럼 방식으로
+//      전환하며 이 문제는 해소됨)
 //   2) VOTE/PLAYER_STAT/LINEUP_SPOT 의 playerId 는 해당 MATCH 의 팀 소속이어야 함 (VOTE는 별도 테이블)
 //      — 교차 테이블 제약이라 FK로 불가. 서비스에서 검증. (MEMBER_NOT_FOUND)
 //   3) TACTIC/FEEDBACK 의 coachId 는 해당 팀 MANAGER 여야 함 — 서비스에서 검증.
 //   4) rating(1~10)/quarter(1~4)/score(>=0)/number(>=0) 범위 — DBML은 CHECK 미표현.
 //      MySQL 8.0.16+ CHECK 제약 또는 서비스 검증 권장. (컬럼 note 로 표기)
+//   5) MVP_VOTE의 voterId/votedPlayerId는 해당 MATCH의 팀 소속이어야 함, votedPlayerId는
+//      해당 MATCH에 PLAYER_STAT row가 존재해야 함(뛴 사람만 후보) — 서비스에서 검증.
+//   6) PLAYER_STAT.isMvp는 MVP_VOTE 집계 결과로만 갱신됨(서비스 재계산) — 스탯 저장 API로
+//      직접 입력 불가. 경기당 최다득표 전원(동점 포함) true, 득표 0이면 전원 false.
 // =============================================================================
 
 // ---------------------------------------------------------------------------
@@ -47,6 +53,14 @@ Enum match_type {
 Enum preferred_foot {
   LEFT
   RIGHT
+}
+
+Enum career {
+  AMATEUR        // 순수 아마추어
+  MIDDLE_SCHOOL  // 중학교 선수 출신
+  HIGH_SCHOOL    // 고등학교 선수 출신
+  UNIVERSITY     // 대학교 선수 출신
+  ACTIVE         // 현역
 }
 
 Enum defensive_line_height {
@@ -118,7 +132,8 @@ Table PLAYER {
   height int [null, note: 'cm']
   weight int [null, note: 'kg']
   preferredFoot preferred_foot [null]
-  career text [null]
+  career career [null]
+  yearsOfExperience int [null, note: '구력(년수), 직접 입력']
   preferredPosition varchar(10) [null]
   subPosition varchar(10) [null]
   createdAt datetime [not null]
@@ -147,12 +162,6 @@ Table PARTICIPATION {
   subPosition varchar(10) [null]
   joinedAt datetime [not null]
   updatedAt datetime [not null]
-  isCaptain boolean [not null, default: false]
-  isPkTaker boolean [not null, default: false]
-  isFkRight boolean [not null, default: false]
-  isFkLeft boolean [not null, default: false]
-  isCkRight boolean [not null, default: false]
-  isCkLeft boolean [not null, default: false]
 
   indexes {
     (teamId, playerId) [unique, name: 'uk_participation_team_player'] // 중복 팀 가입 방지 (ALREADY_JOINED)
@@ -160,7 +169,22 @@ Table PARTICIPATION {
     (playerId)         [name: 'idx_participation_player']             // countByPlayerId
   }
 
-  Note: '테이블명 PARTICIPATIONS(복수) → PARTICIPATION(단수)로 통일. 엔티티 @Table 후속 수정 필요.'
+  Note: '테이블명 PARTICIPATIONS(복수) → PARTICIPATION(단수)로 통일. 엔티티 @Table 후속 수정 필요. 세트피스 전담 역할(주장/PK키커/CK/FK)은 boolean 6컬럼 방식에서 TEAM_ROLE_ASSIGNMENT 테이블(FK 참조 방식)로 이전됨.'
+}
+
+Table TEAM_ROLE_ASSIGNMENT {
+  id bigint [pk, increment]
+  teamId bigint [not null, unique, note: 'TEAM과 1:1']
+  captainParticipationId bigint [null, note: '주장. 빈 슬롯은 NULL']
+  pkTakerParticipationId bigint [null, note: 'PK 키커. 빈 슬롯은 NULL']
+  ckLeftParticipationId bigint [null, note: 'CK 왼쪽 키커. 빈 슬롯은 NULL']
+  ckRightParticipationId bigint [null, note: 'CK 오른쪽 키커. 빈 슬롯은 NULL']
+  fkLeftParticipationId bigint [null, note: 'FK 왼쪽 키커. 빈 슬롯은 NULL']
+  fkRightParticipationId bigint [null, note: 'FK 오른쪽 키커. 빈 슬롯은 NULL']
+  createdAt datetime [not null]
+  updatedAt datetime [not null]
+
+  Note: '팀 생성 시 즉시 1행 생성(모든 역할 NULL) — "row 없음" 예외 분기를 서비스 코드에 퍼뜨리지 않기 위함. 역할당 1명 제약은 컬럼이 단일 값이라 구조적으로 보장됨(과거 PARTICIPATION.isCaptain 등 boolean 방식 대체).'
 }
 
 // ---------------------------------------------------------------------------
@@ -244,11 +268,26 @@ Table PLAYER_STAT {
   goals int [null]
   assists int [null]
   saves int [null, note: 'GK 전용']
+  goalsConceded int [null, note: 'GK 전용']
+  cleanSheet boolean [null, note: 'GK 전용']
+  isMvp boolean [not null, default: false, note: 'MVP_VOTE 집계 결과로만 갱신. 스탯 저장 API로 직접 입력 불가']
   createdAt datetime [not null]
   updatedAt datetime [not null]
 
   indexes {
     (matchId, playerId) [unique, name: 'uk_player_stat_match_player'] // 선수·경기당 스탯 1행
+  }
+}
+
+Table MVP_VOTE {
+  id bigint [pk, increment]
+  matchId bigint [not null]
+  voterId bigint [not null, note: '투표한 선수. Player.id, 본인 투표 허용']
+  votedPlayerId bigint [not null, note: 'MVP로 지명된 선수. Player.id']
+  votedAt datetime [not null]
+
+  indexes {
+    (matchId, voterId) [unique, name: 'uk_mvp_vote_match_voter'] // 경기당 1인 1표 (재투표는 update)
   }
 }
 
@@ -382,6 +421,14 @@ Ref: PLAYER.userId > "USER".id [delete: cascade]
 Ref: PARTICIPATION.playerId > PLAYER.id [delete: cascade]
 Ref: PARTICIPATION.teamId > TEAM.id [delete: cascade]
 
+Ref: TEAM_ROLE_ASSIGNMENT.teamId > TEAM.id [delete: cascade]
+Ref: TEAM_ROLE_ASSIGNMENT.captainParticipationId > PARTICIPATION.id [delete: set null] // 선수가 팀을 나가도 배정 자체는 유지, 슬롯만 비움
+Ref: TEAM_ROLE_ASSIGNMENT.pkTakerParticipationId > PARTICIPATION.id [delete: set null]
+Ref: TEAM_ROLE_ASSIGNMENT.ckLeftParticipationId > PARTICIPATION.id [delete: set null]
+Ref: TEAM_ROLE_ASSIGNMENT.ckRightParticipationId > PARTICIPATION.id [delete: set null]
+Ref: TEAM_ROLE_ASSIGNMENT.fkLeftParticipationId > PARTICIPATION.id [delete: set null]
+Ref: TEAM_ROLE_ASSIGNMENT.fkRightParticipationId > PARTICIPATION.id [delete: set null]
+
 Ref: "MATCH".teamId > TEAM.id [delete: cascade]
 
 Ref: VOTE.matchId > "MATCH".id [delete: cascade]
@@ -396,6 +443,10 @@ Ref: LINEUP_SPOT.guestId > MATCH_GUEST.id [delete: cascade]
 
 Ref: PLAYER_STAT.matchId > "MATCH".id [delete: cascade]
 Ref: PLAYER_STAT.playerId > PLAYER.id [delete: cascade]
+
+Ref: MVP_VOTE.matchId > "MATCH".id [delete: cascade]
+Ref: MVP_VOTE.voterId > PLAYER.id [delete: cascade]
+Ref: MVP_VOTE.votedPlayerId > PLAYER.id [delete: cascade]
 
 Ref: TEAM_TACTIC.matchId > "MATCH".id [delete: cascade]
 Ref: TEAM_TACTIC.coachId > PLAYER.id [delete: set null] // 작성 코치 삭제돼도 전술 내용 보존
@@ -421,14 +472,16 @@ Ref: COMMENT.playerId > PLAYER.id [delete: cascade]
 // ---------------------------------------------------------------------------
 // 설계 노트 (정합성 관련 핵심 결정)
 //   - 유니크 제약으로 중복 방지: PARTICIPATION(team,player), VOTE(match,player),
-//     PLAYER_STAT(match,player), LINEUP(match,quarter), LINEUP_SPOT(lineup,player),
-//     MATCH(team,matchDate), TEAM/PERSONAL_FEEDBACK·TACTIC.
+//     PLAYER_STAT(match,player), MVP_VOTE(match,voter), LINEUP(match,quarter),
+//     LINEUP_SPOT(lineup,player), MATCH(team,matchDate), TEAM/PERSONAL_FEEDBACK·TACTIC,
+//     TEAM_ROLE_ASSIGNMENT(teamId).
 //   - DOCUMENT는 NOTE 전용. VOTE는 별도 VOTE 테이블에서 독립 관리.
 //   - 값 도메인은 Enum으로 고정(varchar 임의 문자열 방지). 범위값(rating/quarter/score
 //     /number)은 DBML CHECK 미표현 → MySQL CHECK 또는 서비스 검증 권장(컬럼 note).
 //   - 삭제 정책: 기본 ON DELETE CASCADE. 단 "작성자/연결"만 끊고 기록은 보존해야 하는
-//     3곳은 ON DELETE SET NULL — TACTIC/FEEDBACK.coachId(작성 코치 탈퇴), DOCUMENT.matchId
-//     (경기 삭제 시 게시글 보존).
+//     곳은 ON DELETE SET NULL — TACTIC/FEEDBACK.coachId(작성 코치 탈퇴), DOCUMENT.matchId
+//     (경기 삭제 시 게시글 보존), TEAM_ROLE_ASSIGNMENT의 6개 participationId(선수 탈퇴 시
+//     배정 자체는 보존하고 슬롯만 비움).
 //
 // [DB 스키마와 별개로 후속 반영 필요 — 코드 측]
 //   - 엔티티: @Table(uniqueConstraints=...), Participation 테이블명 단수화,

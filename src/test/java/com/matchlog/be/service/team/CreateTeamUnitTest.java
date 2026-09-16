@@ -13,6 +13,7 @@ import com.matchlog.be.constant.participation.ParticipationRole;
 import com.matchlog.be.domain.participation.Participation;
 import com.matchlog.be.domain.player.Player;
 import com.matchlog.be.domain.team.Team;
+import com.matchlog.be.domain.team.TeamRoleAssignment;
 import com.matchlog.be.domain.user.User;
 import com.matchlog.be.dto.team.request.CreateTeamRequestDto;
 import com.matchlog.be.dto.team.response.CreateTeamResponseDto;
@@ -20,6 +21,7 @@ import com.matchlog.be.exception.CustomException;
 import com.matchlog.be.exception.constant.TeamErrorCode;
 import com.matchlog.be.repository.ParticipationRepository;
 import com.matchlog.be.repository.TeamRepository;
+import com.matchlog.be.repository.TeamRoleAssignmentRepository;
 import com.matchlog.be.service.player.PlayerService;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -35,6 +37,7 @@ class CreateTeamUnitTest {
 
     @Mock private TeamRepository teamRepository;
     @Mock private ParticipationRepository participationRepository;
+    @Mock private TeamRoleAssignmentRepository teamRoleAssignmentRepository;
     @Mock private PlayerService playerService;
     @InjectMocks private TeamService teamService;
 
@@ -78,6 +81,11 @@ class CreateTeamUnitTest {
         verify(participationRepository, times(1)).save(captor.capture());
         assertThat(captor.getValue().getRole()).isEqualTo(ParticipationRole.MANAGER);
         assertThat(captor.getValue().getPlayer()).isEqualTo(creator);
+
+        ArgumentCaptor<TeamRoleAssignment> roleAssignmentCaptor =
+                ArgumentCaptor.forClass(TeamRoleAssignment.class);
+        verify(teamRoleAssignmentRepository, times(1)).save(roleAssignmentCaptor.capture());
+        assertThat(roleAssignmentCaptor.getValue().getTeam().getId()).isEqualTo(1L);
     }
 
     @Test
@@ -114,6 +122,7 @@ class CreateTeamUnitTest {
 
         verify(teamRepository, never()).save(any(Team.class));
         verify(participationRepository, never()).save(any(Participation.class));
+        verify(teamRoleAssignmentRepository, never()).save(any(TeamRoleAssignment.class));
     }
 
     @Test
@@ -131,5 +140,6 @@ class CreateTeamUnitTest {
 
         verify(teamRepository, never()).save(any(Team.class));
         verify(participationRepository, never()).save(any(Participation.class));
+        verify(teamRoleAssignmentRepository, never()).save(any(TeamRoleAssignment.class));
     }
 }

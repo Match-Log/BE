@@ -59,6 +59,7 @@ class RemoveFromRosterUnitTest {
                 Participation.create(target, team, ParticipationRole.PLAYER);
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(manager);
+        when(teamRepository.existsById(TEAM_ID)).thenReturn(true);
         doNothing().when(teamAuthorizationService).requireManager(eq(TEAM_ID), eq(9L), anyString());
         when(participationRepository.findByTeam_IdAndPlayer_Id(TEAM_ID, 10L))
                 .thenReturn(Optional.of(targetParticipation));
@@ -75,10 +76,28 @@ class RemoveFromRosterUnitTest {
     }
 
     @Test
+    void 존재하지_않는_팀이면_TEAM_NOT_FOUND_예외가_발생한다() {
+        Player requester = Player.builder().id(9L).build();
+
+        when(playerService.getCurrentPlayer(USER_ID)).thenReturn(requester);
+        when(teamRepository.existsById(TEAM_ID)).thenReturn(false);
+
+        assertThatThrownBy(() -> participationService.removeFromRoster(USER_ID, TEAM_ID, 10L))
+                .isInstanceOf(CustomException.class)
+                .satisfies(
+                        e ->
+                                assertThat(((CustomException) e).getErrorCode())
+                                        .isEqualTo(TeamErrorCode.TEAM_NOT_FOUND));
+
+        verify(participationRepository, never()).delete(ArgumentMatchers.any(Participation.class));
+    }
+
+    @Test
     void MANAGER가_아니면_FORBIDDEN_예외가_발생한다() {
         Player requester = Player.builder().id(9L).build();
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(requester);
+        when(teamRepository.existsById(TEAM_ID)).thenReturn(true);
         doThrow(new CustomException(CommonErrorCode.FORBIDDEN, "팀원 제외 권한이 없습니다. (MANAGER만 가능)"))
                 .when(teamAuthorizationService)
                 .requireManager(TEAM_ID, 9L, "팀원 제외 권한이 없습니다. (MANAGER만 가능)");
@@ -98,6 +117,7 @@ class RemoveFromRosterUnitTest {
         Player manager = Player.builder().id(9L).build();
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(manager);
+        when(teamRepository.existsById(TEAM_ID)).thenReturn(true);
         doNothing().when(teamAuthorizationService).requireManager(eq(TEAM_ID), eq(9L), anyString());
         when(participationRepository.findByTeam_IdAndPlayer_Id(TEAM_ID, 999L))
                 .thenReturn(Optional.empty());
@@ -118,6 +138,7 @@ class RemoveFromRosterUnitTest {
                 Participation.create(manager, team, ParticipationRole.MANAGER);
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(manager);
+        when(teamRepository.existsById(TEAM_ID)).thenReturn(true);
         doNothing().when(teamAuthorizationService).requireManager(eq(TEAM_ID), eq(9L), anyString());
         when(participationRepository.findByTeam_IdAndPlayer_Id(TEAM_ID, 9L))
                 .thenReturn(Optional.of(managerParticipation));
@@ -141,6 +162,7 @@ class RemoveFromRosterUnitTest {
                 Participation.create(otherManager, team, ParticipationRole.MANAGER);
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(manager);
+        when(teamRepository.existsById(TEAM_ID)).thenReturn(true);
         doNothing().when(teamAuthorizationService).requireManager(eq(TEAM_ID), eq(9L), anyString());
         when(participationRepository.findByTeam_IdAndPlayer_Id(TEAM_ID, 10L))
                 .thenReturn(Optional.of(otherManagerParticipation));

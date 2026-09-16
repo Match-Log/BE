@@ -4,6 +4,7 @@ import com.matchlog.be.constant.participation.ParticipationRole;
 import com.matchlog.be.domain.participation.Participation;
 import com.matchlog.be.domain.player.Player;
 import com.matchlog.be.domain.team.Team;
+import com.matchlog.be.domain.team.TeamRoleAssignment;
 import com.matchlog.be.dto.team.request.CreateTeamRequestDto;
 import com.matchlog.be.dto.team.request.UpdateTeamRequestDto;
 import com.matchlog.be.dto.team.response.CreateTeamResponseDto;
@@ -16,6 +17,7 @@ import com.matchlog.be.exception.constant.CommonErrorCode;
 import com.matchlog.be.exception.constant.TeamErrorCode;
 import com.matchlog.be.repository.ParticipationRepository;
 import com.matchlog.be.repository.TeamRepository;
+import com.matchlog.be.repository.TeamRoleAssignmentRepository;
 import com.matchlog.be.service.player.PlayerService;
 import java.security.SecureRandom;
 import java.util.List;
@@ -34,6 +36,7 @@ public class TeamService {
 
     private final TeamRepository teamRepository;
     private final ParticipationRepository participationRepository;
+    private final TeamRoleAssignmentRepository teamRoleAssignmentRepository;
     private final PlayerService playerService;
     private final TeamAuthorizationService teamAuthorizationService;
     private final SecureRandom random = new SecureRandom();
@@ -59,6 +62,8 @@ public class TeamService {
         Participation managerParticipation =
                 Participation.create(creator, team, ParticipationRole.MANAGER);
         participationRepository.save(managerParticipation);
+
+        teamRoleAssignmentRepository.save(TeamRoleAssignment.create(team));
 
         return CreateTeamResponseDto.from(team);
     }

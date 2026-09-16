@@ -1,11 +1,15 @@
 package com.matchlog.be.service.player;
 
+import com.matchlog.be.constant.lineup.Position;
 import com.matchlog.be.domain.player.Player;
 import com.matchlog.be.domain.user.User;
 import com.matchlog.be.dto.player.request.RegisterPlayerRequestDto;
+import com.matchlog.be.dto.player.request.UpdatePlayerProfileRequestDto;
 import com.matchlog.be.dto.player.response.PlayerProfileResponseDto;
 import com.matchlog.be.dto.player.response.RegisterPlayerResponseDto;
+import com.matchlog.be.dto.player.response.UpdatePlayerProfileResponseDto;
 import com.matchlog.be.exception.CustomException;
+import com.matchlog.be.exception.constant.CommonErrorCode;
 import com.matchlog.be.exception.constant.PlayerErrorCode;
 import com.matchlog.be.exception.constant.UserErrorCode;
 import com.matchlog.be.repository.PlayerRepository;
@@ -32,6 +36,8 @@ public class PlayerService {
                         .findById(userId)
                         .orElseThrow(() -> new CustomException(UserErrorCode.USER_NOT_FOUND));
 
+        validatePositionsDiffer(request.getPreferredPosition(), request.getSubPosition());
+
         Player player =
                 Player.create(
                         user,
@@ -40,10 +46,44 @@ public class PlayerService {
                         request.getWeight(),
                         request.getPreferredFoot(),
                         request.getCareer(),
+                        request.getYearsOfExperience(),
                         request.getPreferredPosition(),
                         request.getSubPosition());
 
         return RegisterPlayerResponseDto.from(playerRepository.save(player));
+    }
+
+    @Transactional
+    public UpdatePlayerProfileResponseDto updatePlayerProfile(
+            Long playerId, Long userId, UpdatePlayerProfileRequestDto request) {
+        Player player =
+                playerRepository
+                        .findById(playerId)
+                        .orElseThrow(() -> new CustomException(PlayerErrorCode.PLAYER_NOT_FOUND));
+
+        if (!player.getUser().getId().equals(userId)) {
+            throw new CustomException(CommonErrorCode.FORBIDDEN, "본인 프로필만 수정할 수 있습니다.");
+        }
+
+        player.updateProfile(
+                request.getBirthDate(),
+                request.getHeight(),
+                request.getWeight(),
+                request.getPreferredFoot(),
+                request.getCareer(),
+                request.getYearsOfExperience(),
+                request.getPreferredPosition(),
+                request.getSubPosition());
+
+        validatePositionsDiffer(player.getPreferredPosition(), player.getSubPosition());
+
+        return UpdatePlayerProfileResponseDto.from(player);
+    }
+
+    private void validatePositionsDiffer(Position preferredPosition, Position subPosition) {
+        if (preferredPosition != null && preferredPosition.equals(subPosition)) {
+            throw new CustomException(PlayerErrorCode.DUPLICATE_POSITION);
+        }
     }
 
     public PlayerProfileResponseDto getPlayerProfile(Long playerId) {

@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.when;
 
+import com.matchlog.be.constant.player.Career;
 import com.matchlog.be.constant.player.PreferredFoot;
 import com.matchlog.be.domain.player.Player;
 import com.matchlog.be.domain.user.User;
@@ -41,7 +42,8 @@ class GetPlayerProfileUnitTest {
                         .height(178)
                         .weight(72)
                         .preferredFoot(PreferredFoot.RIGHT)
-                        .career("전 마포 유나이티드")
+                        .career(Career.AMATEUR)
+                        .yearsOfExperience(5)
                         .build();
 
         when(playerRepository.findById(playerId)).thenReturn(Optional.of(player));

@@ -3,14 +3,7 @@ package com.matchlog.be.domain.stat;
 import com.matchlog.be.domain.common.BaseTimeEntity;
 import com.matchlog.be.domain.match.Match;
 import com.matchlog.be.domain.player.Player;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -43,6 +36,14 @@ public class PlayerStat extends BaseTimeEntity {
 
     private Integer saves;
 
+    private Integer goalsConceded;
+
+    private Boolean cleanSheet;
+
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean isMvp = false;
+
     public static PlayerStat create(Match match, Player player) {
         return PlayerStat.builder().match(match).player(player).build();
     }
@@ -51,5 +52,9 @@ public class PlayerStat extends BaseTimeEntity {
         this.goals = goals;
         this.assists = assists;
         this.saves = saves;
+    }
+
+    public void changeMvpStatus(boolean isMvp) {
+        this.isMvp = isMvp;
     }
 }

@@ -1,6 +1,7 @@
 package com.matchlog.be.domain.player;
 
 import com.matchlog.be.constant.lineup.Position;
+import com.matchlog.be.constant.player.Career;
 import com.matchlog.be.constant.player.PreferredFoot;
 import com.matchlog.be.domain.common.BaseTimeEntity;
 import com.matchlog.be.domain.user.User;
@@ -48,8 +49,11 @@ public class Player extends BaseTimeEntity {
     @Column(length = 5)
     private PreferredFoot preferredFoot;
 
-    @Column(columnDefinition = "TEXT")
-    private String career;
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private Career career;
+
+    private Integer yearsOfExperience;
 
     @Enumerated(EnumType.STRING)
     @Column(length = 10)
@@ -65,7 +69,8 @@ public class Player extends BaseTimeEntity {
             Integer height,
             Integer weight,
             PreferredFoot preferredFoot,
-            String career,
+            Career career,
+            Integer yearsOfExperience,
             Position preferredPosition,
             Position subPosition) {
         return Player.builder()
@@ -75,13 +80,24 @@ public class Player extends BaseTimeEntity {
                 .weight(weight)
                 .preferredFoot(preferredFoot)
                 .career(career)
+                .yearsOfExperience(yearsOfExperience)
                 .preferredPosition(preferredPosition)
                 .subPosition(subPosition)
                 .build();
     }
 
     public void updateProfile(
-            Integer height, Integer weight, PreferredFoot preferredFoot, String career) {
+            LocalDate birthDate,
+            Integer height,
+            Integer weight,
+            PreferredFoot preferredFoot,
+            Career career,
+            Integer yearsOfExperience,
+            Position preferredPosition,
+            Position subPosition) {
+        if (birthDate != null) {
+            this.birthDate = birthDate;
+        }
         if (height != null) {
             this.height = height;
         }
@@ -93,6 +109,15 @@ public class Player extends BaseTimeEntity {
         }
         if (career != null) {
             this.career = career;
+        }
+        if (yearsOfExperience != null) {
+            this.yearsOfExperience = yearsOfExperience;
+        }
+        if (preferredPosition != null) {
+            this.preferredPosition = preferredPosition;
+        }
+        if (subPosition != null) {
+            this.subPosition = subPosition;
         }
     }
 }

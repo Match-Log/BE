@@ -5,6 +5,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import com.matchlog.be.constant.lineup.Position;
+import com.matchlog.be.constant.player.Career;
 import com.matchlog.be.constant.player.PreferredFoot;
 import com.matchlog.be.domain.player.Player;
 import com.matchlog.be.domain.user.User;
@@ -42,7 +44,10 @@ class RegisterPlayerUnitTest {
                         .height(178)
                         .weight(72)
                         .preferredFoot(PreferredFoot.RIGHT)
-                        .career("전 마포 유나이티드")
+                        .career(Career.AMATEUR)
+                        .yearsOfExperience(5)
+                        .preferredPosition(Position.CM)
+                        .subPosition(Position.CB)
                         .build();
 
         when(playerRepository.existsByUser_Id(userId)).thenReturn(false);
@@ -59,6 +64,9 @@ class RegisterPlayerUnitTest {
                                     .weight(saved.getWeight())
                                     .preferredFoot(saved.getPreferredFoot())
                                     .career(saved.getCareer())
+                                    .yearsOfExperience(saved.getYearsOfExperience())
+                                    .preferredPosition(saved.getPreferredPosition())
+                                    .subPosition(saved.getSubPosition())
                                     .build();
                         });
 
@@ -99,5 +107,26 @@ class RegisterPlayerUnitTest {
                         e ->
                                 assertThat(((CustomException) e).getErrorCode())
                                         .isEqualTo(UserErrorCode.USER_NOT_FOUND));
+    }
+
+    @Test
+    void 주포지션과_부포지션이_같으면_DUPLICATE_POSITION_예외가_발생한다() {
+        Long userId = 1L;
+        User user = User.builder().id(userId).email("user@example.com").name("임준혁").build();
+        RegisterPlayerRequestDto request =
+                RegisterPlayerRequestDto.builder()
+                        .preferredPosition(Position.CM)
+                        .subPosition(Position.CM)
+                        .build();
+
+        when(playerRepository.existsByUser_Id(userId)).thenReturn(false);
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        assertThatThrownBy(() -> playerService.registerPlayer(userId, request))
+                .isInstanceOf(CustomException.class)
+                .satisfies(
+                        e ->
+                                assertThat(((CustomException) e).getErrorCode())
+                                        .isEqualTo(PlayerErrorCode.DUPLICATE_POSITION));
     }
 }

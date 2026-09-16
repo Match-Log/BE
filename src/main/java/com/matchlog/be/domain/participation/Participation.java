@@ -71,30 +71,6 @@ public class Participation {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
-    @Column(nullable = false)
-    @Builder.Default
-    private boolean isCaptain = false;
-
-    @Column(nullable = false)
-    @Builder.Default
-    private boolean isPkTaker = false;
-
-    @Column(nullable = false)
-    @Builder.Default
-    private boolean isFkRight = false;
-
-    @Column(nullable = false)
-    @Builder.Default
-    private boolean isFkLeft = false;
-
-    @Column(nullable = false)
-    @Builder.Default
-    private boolean isCkRight = false;
-
-    @Column(nullable = false)
-    @Builder.Default
-    private boolean isCkLeft = false;
-
     public static Participation create(Player player, Team team, ParticipationRole role) {
         LocalDateTime now = LocalDateTime.now();
         return Participation.builder()
@@ -117,22 +93,6 @@ public class Participation {
         this.number = number;
         this.mainPosition = mainPosition;
         this.subPosition = subPosition;
-        touch();
-    }
-
-    public void assignKickerRoles(
-            boolean isCaptain,
-            boolean isPkTaker,
-            boolean isFkRight,
-            boolean isFkLeft,
-            boolean isCkRight,
-            boolean isCkLeft) {
-        this.isCaptain = isCaptain;
-        this.isPkTaker = isPkTaker;
-        this.isFkRight = isFkRight;
-        this.isFkLeft = isFkLeft;
-        this.isCkRight = isCkRight;
-        this.isCkLeft = isCkLeft;
         touch();
     }
 
