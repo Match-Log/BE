@@ -14,6 +14,10 @@
 //   3) TACTIC/FEEDBACK 의 coachId 는 해당 팀 MANAGER 여야 함 — 서비스에서 검증.
 //   4) rating(1~10)/quarter(1~4)/score(>=0)/number(>=0) 범위 — DBML은 CHECK 미표현.
 //      MySQL 8.0.16+ CHECK 제약 또는 서비스 검증 권장. (컬럼 note 로 표기)
+//   5) MVP_VOTE의 voterId/votedPlayerId는 해당 MATCH의 팀 소속이어야 함, votedPlayerId는
+//      해당 MATCH에 PLAYER_STAT row가 존재해야 함(뛴 사람만 후보) — 서비스에서 검증.
+//   6) PLAYER_STAT.isMvp는 MVP_VOTE 집계 결과로만 갱신됨(서비스 재계산) — 스탯 저장 API로
+//      직접 입력 불가. 경기당 최다득표 전원(동점 포함) true, 득표 0이면 전원 false.
 // =============================================================================
 
 // ---------------------------------------------------------------------------
@@ -267,11 +271,24 @@ Table PLAYER_STAT {
   saves int [null, note: 'GK 전용']
   goalsConceded int [null, note: 'GK 전용']
   cleanSheet boolean [null, note: 'GK 전용']
+  isMvp boolean [not null, default: false, note: 'MVP_VOTE 집계 결과로만 갱신. 스탯 저장 API로 직접 입력 불가']
   createdAt datetime [not null]
   updatedAt datetime [not null]
 
   indexes {
     (matchId, playerId) [unique, name: 'uk_player_stat_match_player'] // 선수·경기당 스탯 1행
+  }
+}
+
+Table MVP_VOTE {
+  id bigint [pk, increment]
+  matchId bigint [not null]
+  voterId bigint [not null, note: '투표한 선수. Player.id, 본인 투표 허용']
+  votedPlayerId bigint [not null, note: 'MVP로 지명된 선수. Player.id']
+  votedAt datetime [not null]
+
+  indexes {
+    (matchId, voterId) [unique, name: 'uk_mvp_vote_match_voter'] // 경기당 1인 1표 (재투표는 update)
   }
 }
 
@@ -412,6 +429,10 @@ Ref: LINEUP_SPOT.guestId > MATCH_GUEST.id [delete: cascade]
 Ref: PLAYER_STAT.matchId > "MATCH".id [delete: cascade]
 Ref: PLAYER_STAT.playerId > PLAYER.id [delete: cascade]
 
+Ref: MVP_VOTE.matchId > "MATCH".id [delete: cascade]
+Ref: MVP_VOTE.voterId > PLAYER.id [delete: cascade]
+Ref: MVP_VOTE.votedPlayerId > PLAYER.id [delete: cascade]
+
 Ref: TEAM_TACTIC.matchId > "MATCH".id [delete: cascade]
 Ref: TEAM_TACTIC.coachId > PLAYER.id [delete: set null] // 작성 코치 삭제돼도 전술 내용 보존
 
@@ -433,8 +454,9 @@ Ref: DOCUMENT.matchId > "MATCH".id [delete: set null] // 경기 삭제 시 게�
 // ---------------------------------------------------------------------------
 // 설계 노트 (정합성 관련 핵심 결정)
 //   - 유니크 제약으로 중복 방지: PARTICIPATION(team,player), VOTE(match,player),
-//     PLAYER_STAT(match,player), LINEUP(match,quarter), LINEUP_SPOT(lineup,player),
-//     MATCH(team,matchDate), TEAM/PERSONAL_FEEDBACK·TACTIC, TEAM_ROLE_ASSIGNMENT(teamId).
+//     PLAYER_STAT(match,player), MVP_VOTE(match,voter), LINEUP(match,quarter),
+//     LINEUP_SPOT(lineup,player), MATCH(team,matchDate), TEAM/PERSONAL_FEEDBACK·TACTIC,
+//     TEAM_ROLE_ASSIGNMENT(teamId).
 //   - DOCUMENT는 NOTE 전용. VOTE는 별도 VOTE 테이블에서 독립 관리.
 //   - 값 도메인은 Enum으로 고정(varchar 임의 문자열 방지). 범위값(rating/quarter/score
 //     /number)은 DBML CHECK 미표현 → MySQL CHECK 또는 서비스 검증 권장(컬럼 note).

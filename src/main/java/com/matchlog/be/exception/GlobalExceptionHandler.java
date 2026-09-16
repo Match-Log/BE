@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
@@ -41,6 +42,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
         log.warn("TypeMismatch: {}", e.getMessage());
+        return ResponseEntity.status(CommonErrorCode.INVALID_REQUEST_BODY.getStatus())
+                .body(ErrorResponse.of(CommonErrorCode.INVALID_REQUEST_BODY));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingParam(
+            MissingServletRequestParameterException e) {
+        log.warn("MissingServletRequestParameter: {}", e.getMessage());
         return ResponseEntity.status(CommonErrorCode.INVALID_REQUEST_BODY.getStatus())
                 .body(ErrorResponse.of(CommonErrorCode.INVALID_REQUEST_BODY));
     }

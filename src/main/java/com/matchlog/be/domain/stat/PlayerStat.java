@@ -56,6 +56,10 @@ public class PlayerStat extends BaseTimeEntity {
 
     private Boolean cleanSheet;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean isMvp = false;
+
     public static PlayerStat create(Match match, Player player) {
         return PlayerStat.builder().match(match).player(player).build();
     }
@@ -73,5 +77,9 @@ public class PlayerStat extends BaseTimeEntity {
         this.saves = saves;
         this.goalsConceded = goalsConceded;
         this.cleanSheet = cleanSheet;
+    }
+
+    public void changeMvpStatus(boolean isMvp) {
+        this.isMvp = isMvp;
     }
 }

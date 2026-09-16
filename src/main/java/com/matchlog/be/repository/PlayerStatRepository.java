@@ -1,6 +1,8 @@
 package com.matchlog.be.repository;
 
 import com.matchlog.be.domain.stat.PlayerStat;
+import com.matchlog.be.repository.projection.PlayerStatAggregate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -24,6 +26,19 @@ public interface PlayerStatRepository extends JpaRepository<PlayerStat, Long> {
             "SELECT ps FROM PlayerStat ps JOIN FETCH ps.player pl JOIN FETCH pl.user WHERE ps.match.id = :matchId")
     List<PlayerStat> findStatsByMatchId(@Param("matchId") Long matchId);
 
-    // 대응 API 없음: 선수 시즌 누적 스탯 엔드포인트가 API 문서에 존재하지 않음. 추후 API 추가 시 복구.
-    // List<PlayerStat> findByPlayer_Id(Long playerId);
+    // [GET /api/v1/teams/{teamId}/players/{playerId}/stats/summary] 월별/시즌 집계 — GROUP BY 없는
+    // 단일 행 집계(규칙§7). matchDate 범위는 서비스에서 period(MONTHLY/SEASON) 기준으로 계산해 넘김.
+    @Query(
+            "SELECT COUNT(ps) AS matchCount, COALESCE(SUM(ps.goals), 0) AS goals, "
+                    + "COALESCE(SUM(ps.assists), 0) AS assists, SUM(ps.saves) AS saves, "
+                    + "SUM(CASE WHEN ps.cleanSheet = true THEN 1 ELSE 0 END) AS cleanSheetCount, "
+                    + "SUM(CASE WHEN ps.isMvp = true THEN 1 ELSE 0 END) AS mvpCount "
+                    + "FROM PlayerStat ps JOIN ps.match m "
+                    + "WHERE ps.player.id = :playerId AND m.team.id = :teamId "
+                    + "AND m.matchDate >= :from AND m.matchDate < :to")
+    PlayerStatAggregate aggregateByPlayerAndPeriod(
+            @Param("teamId") Long teamId,
+            @Param("playerId") Long playerId,
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to);
 }
