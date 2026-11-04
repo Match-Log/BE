@@ -26,8 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class ParticipationService {
 
-    private static final long MAX_TEAMS_PER_PLAYER = 2;
-
     private final ParticipationRepository participationRepository;
     private final TeamRepository teamRepository;
     private final PlayerService playerService;
@@ -47,9 +45,7 @@ public class ParticipationService {
             throw new CustomException(TeamErrorCode.ALREADY_JOINED);
         }
 
-        if (participationRepository.countByPlayer_Id(player.getId()) >= MAX_TEAMS_PER_PLAYER) {
-            throw new CustomException(TeamErrorCode.TEAM_LIMIT_EXCEEDED);
-        }
+        teamAuthorizationService.requireTeamLimitNotExceeded(player.getId());
 
         Participation participation =
                 participationRepository.save(

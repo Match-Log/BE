@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -39,6 +40,7 @@ class CreateTeamUnitTest {
     @Mock private ParticipationRepository participationRepository;
     @Mock private TeamRoleAssignmentRepository teamRoleAssignmentRepository;
     @Mock private PlayerService playerService;
+    @Mock private TeamAuthorizationService teamAuthorizationService;
     @InjectMocks private TeamService teamService;
 
     @Test
@@ -111,7 +113,9 @@ class CreateTeamUnitTest {
         CreateTeamRequestDto request = CreateTeamRequestDto.builder().name("FC 한강불사조").build();
 
         when(playerService.getCurrentPlayer(userId)).thenReturn(creator);
-        when(participationRepository.countByPlayer_Id(10L)).thenReturn(2L);
+        doThrow(new CustomException(TeamErrorCode.TEAM_LIMIT_EXCEEDED))
+                .when(teamAuthorizationService)
+                .requireTeamLimitNotExceeded(10L);
 
         assertThatThrownBy(() -> teamService.createTeam(userId, request))
                 .isInstanceOf(CustomException.class)

@@ -3,6 +3,7 @@ package com.matchlog.be.service.participation;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import com.matchlog.be.constant.participation.ParticipationRole;
@@ -16,6 +17,7 @@ import com.matchlog.be.exception.constant.TeamErrorCode;
 import com.matchlog.be.repository.ParticipationRepository;
 import com.matchlog.be.repository.TeamRepository;
 import com.matchlog.be.service.player.PlayerService;
+import com.matchlog.be.service.team.TeamAuthorizationService;
 import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -31,6 +33,7 @@ class JoinTeamByInviteCodeUnitTest {
     @Mock private ParticipationRepository participationRepository;
     @Mock private TeamRepository teamRepository;
     @Mock private PlayerService playerService;
+    @Mock private TeamAuthorizationService teamAuthorizationService;
     @InjectMocks private ParticipationService participationService;
 
     private static final Long USER_ID = 1L;
@@ -44,7 +47,6 @@ class JoinTeamByInviteCodeUnitTest {
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(player);
         when(teamRepository.findByInviteCode("HK4829")).thenReturn(Optional.of(team));
         when(participationRepository.existsByTeam_IdAndPlayer_Id(1L, 9L)).thenReturn(false);
-        when(participationRepository.countByPlayer_Id(9L)).thenReturn(0L);
         when(participationRepository.save(any(Participation.class)))
                 .thenAnswer(
                         invocation -> {
@@ -108,7 +110,9 @@ class JoinTeamByInviteCodeUnitTest {
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(player);
         when(teamRepository.findByInviteCode("HK4829")).thenReturn(Optional.of(team));
         when(participationRepository.existsByTeam_IdAndPlayer_Id(1L, 9L)).thenReturn(false);
-        when(participationRepository.countByPlayer_Id(9L)).thenReturn(2L);
+        doThrow(new CustomException(TeamErrorCode.TEAM_LIMIT_EXCEEDED))
+                .when(teamAuthorizationService)
+                .requireTeamLimitNotExceeded(9L);
 
         assertThatThrownBy(() -> participationService.joinTeamByInviteCode(USER_ID, request))
                 .isInstanceOf(CustomException.class)
