@@ -53,6 +53,7 @@ Enum match_type {
 Enum preferred_foot {
   LEFT
   RIGHT
+  BOTH
 }
 
 Enum career {
