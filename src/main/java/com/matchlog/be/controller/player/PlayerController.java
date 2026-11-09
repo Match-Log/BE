@@ -34,6 +34,12 @@ public class PlayerController {
                 .body(playerService.registerPlayer(userId, request));
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<PlayerProfileResponseDto> getMyPlayerProfile(
+            @AuthenticationPrincipal Long userId) {
+        return ResponseEntity.ok(playerService.getMyPlayerProfile(userId));
+    }
+
     @GetMapping("/{playerId}")
     public ResponseEntity<PlayerProfileResponseDto> getPlayerProfile(@PathVariable Long playerId) {
         return ResponseEntity.ok(playerService.getPlayerProfile(playerId));

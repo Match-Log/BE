@@ -46,7 +46,7 @@ public class Player extends BaseTimeEntity {
     private Integer weight;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 5)
+    @Column(length = 5, columnDefinition = "varchar(5)")
     private PreferredFoot preferredFoot;
 
     @Enumerated(EnumType.STRING)

@@ -86,6 +86,10 @@ public class PlayerService {
         }
     }
 
+    public PlayerProfileResponseDto getMyPlayerProfile(Long userId) {
+        return PlayerProfileResponseDto.from(getCurrentPlayer(userId));
+    }
+
     public PlayerProfileResponseDto getPlayerProfile(Long playerId) {
         Player player =
                 playerRepository
