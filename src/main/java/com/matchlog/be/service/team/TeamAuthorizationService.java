@@ -51,8 +51,8 @@ public class TeamAuthorizationService {
     /**
      * playerId가 이미 {@value MAX_TEAMS_PER_PLAYER}개 팀에 소속돼 있으면 TEAM_LIMIT_EXCEEDED.
      *
-     * <p>count 조회와 Participation 저장 사이의 TOCTOU를 막기 위해 Player row에 비관적 락을 건다. 락 해제 전에 저장까지
-     * 끝나야 하므로, 반드시 호출자의 쓰기 트랜잭션 안에서 호출해야 한다(propagation MANDATORY로 강제).
+     * <p>count 조회와 Participation 저장 사이의 TOCTOU를 막기 위해 Player row에 비관적 락을 건다. 락 해제 전에 저장까지 끝나야 하므로,
+     * 반드시 호출자의 쓰기 트랜잭션 안에서 호출해야 한다(propagation MANDATORY로 강제).
      */
     @Transactional(propagation = Propagation.MANDATORY)
     public void requireTeamLimitNotExceeded(Long playerId) {
