@@ -1,10 +1,12 @@
 package com.matchlog.be.repository;
 
 import com.matchlog.be.domain.player.Player;
+import jakarta.persistence.LockModeType;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -19,4 +21,9 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
     // [GET /api/v1/matches/{matchId}/mvp-votes] 득표자 이름 표시용 — Player → User fetch join (N+1 방지)
     @Query("SELECT p FROM Player p JOIN FETCH p.user WHERE p.id IN :ids")
     List<Player> findAllWithUserByIdIn(@Param("ids") Collection<Long> ids);
+
+    // [ADR 004] 팀 소속 개수(최대 2개) 검증-저장 TOCTOU 방지용 비관적 락. 반드시 쓰기 트랜잭션 내에서 호출할 것.
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Player p WHERE p.id = :playerId")
+    Optional<Player> findByIdForUpdate(@Param("playerId") Long playerId);
 }
