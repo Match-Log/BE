@@ -197,6 +197,7 @@ Table "MATCH" {
   opponent varchar(100) [not null, note: '상대가 matchLog 사용 시 팀ID 연동은 향후 과제']
   matchDate datetime [not null]
   location varchar(200) [null]
+  memo varchar(500) [null]
   homeAway match_home_away [not null]
   matchType match_type [not null]
   scoreHome int [null, note: '>= 0 권장(CHECK)']

@@ -66,13 +66,17 @@ public class Match extends BaseTimeEntity {
     @Builder.Default
     private boolean isFinished = false;
 
+    @Column(length = 500)
+    private String memo;
+
     public static Match create(
             Team team,
             String opponent,
             LocalDateTime matchDate,
             String location,
             HomeAway homeAway,
-            MatchType matchType) {
+            MatchType matchType,
+            String memo) {
         return Match.builder()
                 .team(team)
                 .opponent(opponent)
@@ -81,6 +85,7 @@ public class Match extends BaseTimeEntity {
                 .homeAway(homeAway)
                 .matchType(matchType)
                 .isFinished(false)
+                .memo(memo)
                 .build();
     }
 
@@ -89,7 +94,8 @@ public class Match extends BaseTimeEntity {
             LocalDateTime matchDate,
             String location,
             HomeAway homeAway,
-            MatchType matchType) {
+            MatchType matchType,
+            String memo) {
         if (opponent != null) {
             this.opponent = opponent;
         }
@@ -104,6 +110,9 @@ public class Match extends BaseTimeEntity {
         }
         if (matchType != null) {
             this.matchType = matchType;
+        }
+        if (memo != null) {
+            this.memo = memo;
         }
     }
 

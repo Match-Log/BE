@@ -2,6 +2,7 @@ package com.matchlog.be.dto.vote.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.matchlog.be.constant.vote.VoteStatus;
+import com.matchlog.be.domain.participation.Participation;
 import com.matchlog.be.domain.vote.Vote;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -33,6 +34,16 @@ public class VoteItemResponseDto {
                 .profileImage(vote.getPlayer().getUser().getProfileImage())
                 .status(vote.getStatus())
                 .votedAt(vote.getVotedAt())
+                .build();
+    }
+
+    public static VoteItemResponseDto pending(Participation participation) {
+        return VoteItemResponseDto.builder()
+                .playerId(participation.getPlayer().getId())
+                .name(participation.getPlayer().getUser().getName())
+                .profileImage(participation.getPlayer().getUser().getProfileImage())
+                .status(VoteStatus.PENDING)
+                .votedAt(null)
                 .build();
     }
 }

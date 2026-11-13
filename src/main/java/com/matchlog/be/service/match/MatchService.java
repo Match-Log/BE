@@ -66,7 +66,8 @@ public class MatchService {
                                 request.getMatchDate(),
                                 request.getLocation(),
                                 request.getHomeAway(),
-                                request.getMatchType()));
+                                request.getMatchType(),
+                                request.getMemo()));
 
         Document board =
                 documentRepository.save(
@@ -141,7 +142,8 @@ public class MatchService {
                 request.getMatchDate(),
                 request.getLocation(),
                 request.getHomeAway(),
-                request.getMatchType());
+                request.getMatchType(),
+                request.getMemo());
 
         if (request.getScoreHome() != null || request.getScoreAway() != null) {
             match.recordScore(request.getScoreHome(), request.getScoreAway());

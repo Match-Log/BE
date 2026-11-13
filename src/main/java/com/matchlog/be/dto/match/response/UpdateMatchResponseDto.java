@@ -19,6 +19,7 @@ public class UpdateMatchResponseDto {
     private boolean isFinished;
     private Integer scoreHome;
     private Integer scoreAway;
+    private String memo;
 
     @JsonFormat(
             shape = JsonFormat.Shape.STRING,
@@ -33,6 +34,7 @@ public class UpdateMatchResponseDto {
                 .isFinished(match.isFinished())
                 .scoreHome(match.getScoreHome())
                 .scoreAway(match.getScoreAway())
+                .memo(match.getMemo())
                 .updatedAt(match.getUpdatedAt())
                 .build();
     }
