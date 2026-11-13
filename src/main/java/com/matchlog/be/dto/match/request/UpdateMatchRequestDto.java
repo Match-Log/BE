@@ -29,4 +29,5 @@ public class UpdateMatchRequestDto {
     private Integer scoreHome;
     private Integer scoreAway;
     private Boolean isFinished;
+    private String memo;
 }

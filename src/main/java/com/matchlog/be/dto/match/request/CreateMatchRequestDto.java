@@ -27,6 +27,7 @@ public class CreateMatchRequestDto {
     private LocalDateTime matchDate;
 
     private String location;
+    private String memo;
 
     @NotNull private HomeAway homeAway;
 

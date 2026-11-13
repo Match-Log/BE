@@ -30,6 +30,7 @@ public class CreateMatchResponseDto {
     private HomeAway homeAway;
     private MatchType matchType;
     private boolean isFinished;
+    private String memo;
 
     @JsonFormat(
             shape = JsonFormat.Shape.STRING,
@@ -50,6 +51,7 @@ public class CreateMatchResponseDto {
                 .homeAway(match.getHomeAway())
                 .matchType(match.getMatchType())
                 .isFinished(match.isFinished())
+                .memo(match.getMemo())
                 .createdAt(match.getCreatedAt())
                 .boardId(boardId)
                 .boardTitle(boardTitle)

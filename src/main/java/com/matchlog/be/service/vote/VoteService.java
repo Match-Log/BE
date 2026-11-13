@@ -2,6 +2,7 @@ package com.matchlog.be.service.vote;
 
 import com.matchlog.be.constant.vote.VoteStatus;
 import com.matchlog.be.domain.match.Match;
+import com.matchlog.be.domain.participation.Participation;
 import com.matchlog.be.domain.player.Player;
 import com.matchlog.be.domain.vote.Vote;
 import com.matchlog.be.dto.vote.request.SubmitVoteRequestDto;
@@ -11,11 +12,14 @@ import com.matchlog.be.dto.vote.response.VoteStatusResponseDto;
 import com.matchlog.be.exception.CustomException;
 import com.matchlog.be.exception.constant.MatchErrorCode;
 import com.matchlog.be.repository.MatchRepository;
+import com.matchlog.be.repository.ParticipationRepository;
 import com.matchlog.be.repository.VoteRepository;
 import com.matchlog.be.service.player.PlayerService;
 import com.matchlog.be.service.team.TeamAuthorizationService;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +30,7 @@ public class VoteService {
 
     private final VoteRepository voteRepository;
     private final MatchRepository matchRepository;
+    private final ParticipationRepository participationRepository;
     private final PlayerService playerService;
     private final TeamAuthorizationService teamAuthorizationService;
 
@@ -73,21 +78,37 @@ public class VoteService {
 
         teamAuthorizationService.requireMember(match.getTeam().getId(), player.getId());
 
-        List<Vote> votes = voteRepository.findVotesByMatchId(matchId);
+        List<Participation> roster =
+                participationRepository.findRosterByTeamId(match.getTeam().getId());
 
-        int attend = (int) votes.stream().filter(v -> v.getStatus() == VoteStatus.ATTEND).count();
-        int pending = (int) votes.stream().filter(v -> v.getStatus() == VoteStatus.PENDING).count();
-        int absent = (int) votes.stream().filter(v -> v.getStatus() == VoteStatus.ABSENT).count();
+        Map<Long, Vote> voteByPlayerId =
+                voteRepository.findVotesByMatchId(matchId).stream()
+                        .collect(Collectors.toMap(v -> v.getPlayer().getId(), v -> v));
+
+        List<VoteItemResponseDto> allVotes =
+                roster.stream()
+                        .map(
+                                p -> {
+                                    Vote vote = voteByPlayerId.get(p.getPlayer().getId());
+                                    return vote != null
+                                            ? VoteItemResponseDto.from(vote)
+                                            : VoteItemResponseDto.pending(p);
+                                })
+                        .toList();
+
+        int attend =
+                (int) allVotes.stream().filter(v -> v.getStatus() == VoteStatus.ATTEND).count();
+        int pending =
+                (int) allVotes.stream().filter(v -> v.getStatus() == VoteStatus.PENDING).count();
+        int absent =
+                (int) allVotes.stream().filter(v -> v.getStatus() == VoteStatus.ABSENT).count();
 
         List<VoteItemResponseDto> filteredVotes =
-                votes.stream()
-                        .filter(v -> status == null || v.getStatus() == status)
-                        .map(VoteItemResponseDto::from)
-                        .toList();
+                allVotes.stream().filter(v -> status == null || v.getStatus() == status).toList();
 
         return VoteStatusResponseDto.builder()
                 .matchId(matchId)
-                .total(votes.size())
+                .total(roster.size())
                 .attend(attend)
                 .pending(pending)
                 .absent(absent)

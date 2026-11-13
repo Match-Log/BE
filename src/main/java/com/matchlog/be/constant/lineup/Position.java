@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum Position {
+    GK("골키퍼", PositionCategory.GK),
 
     // Defender
     CB("센터백", PositionCategory.DF),
@@ -31,6 +32,7 @@ public enum Position {
     private final PositionCategory category;
 
     public enum PositionCategory {
+        GK,
         DF,
         MF,
         FW

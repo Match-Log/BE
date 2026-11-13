@@ -31,6 +31,7 @@ public class MatchListItemResponseDto {
     private Integer scoreHome;
     private Integer scoreAway;
     private boolean isFinished;
+    private String memo;
 
     public static MatchListItemResponseDto from(Match match) {
         return MatchListItemResponseDto.builder()
@@ -43,6 +44,7 @@ public class MatchListItemResponseDto {
                 .scoreHome(match.getScoreHome())
                 .scoreAway(match.getScoreAway())
                 .isFinished(match.isFinished())
+                .memo(match.getMemo())
                 .build();
     }
 }
