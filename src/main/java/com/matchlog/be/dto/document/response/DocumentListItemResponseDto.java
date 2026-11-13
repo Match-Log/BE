@@ -19,6 +19,7 @@ public class DocumentListItemResponseDto {
     private Long playerId;
     private String playerName;
     private String title;
+    private boolean isPinned;
     private Long matchId;
 
     @JsonFormat(
@@ -34,6 +35,7 @@ public class DocumentListItemResponseDto {
                 .playerId(document.getPlayer().getId())
                 .playerName(document.getPlayer().getUser().getName())
                 .title(document.getTitle())
+                .isPinned(document.isPinned())
                 .matchId(document.getMatch() != null ? document.getMatch().getId() : null)
                 .createdAt(document.getCreatedAt())
                 .build();
