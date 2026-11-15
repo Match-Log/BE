@@ -1,6 +1,7 @@
 package com.matchlog.be.dto.document.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.matchlog.be.constant.document.DocumentType;
 import com.matchlog.be.domain.document.Document;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
@@ -19,6 +20,7 @@ public class DocumentListItemResponseDto {
     private Long playerId;
     private String playerName;
     private String title;
+    private DocumentType type;
     private boolean isPinned;
     private Long matchId;
 
@@ -35,6 +37,7 @@ public class DocumentListItemResponseDto {
                 .playerId(document.getPlayer().getId())
                 .playerName(document.getPlayer().getUser().getName())
                 .title(document.getTitle())
+                .type(document.getType())
                 .isPinned(document.isPinned())
                 .matchId(document.getMatch() != null ? document.getMatch().getId() : null)
                 .createdAt(document.getCreatedAt())

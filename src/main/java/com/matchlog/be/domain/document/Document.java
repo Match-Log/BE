@@ -1,11 +1,14 @@
 package com.matchlog.be.domain.document;
 
+import com.matchlog.be.constant.document.DocumentType;
 import com.matchlog.be.domain.common.BaseTimeEntity;
 import com.matchlog.be.domain.match.Match;
 import com.matchlog.be.domain.player.Player;
 import com.matchlog.be.domain.team.Team;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -44,8 +47,12 @@ public class Document extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "matchId")
-    @OnDelete(action = OnDeleteAction.SET_NULL)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Match match;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 10, columnDefinition = "VARCHAR(10) DEFAULT 'GENERAL'")
+    private DocumentType type;
 
     @Column(name = "isPinned", nullable = false)
     private boolean isPinned;
@@ -57,11 +64,18 @@ public class Document extends BaseTimeEntity {
     private String content;
 
     public static Document create(
-            Team team, Player player, Match match, String title, String content, boolean isPinned) {
+            Team team,
+            Player player,
+            Match match,
+            DocumentType type,
+            String title,
+            String content,
+            boolean isPinned) {
         return Document.builder()
                 .team(team)
                 .player(player)
                 .match(match)
+                .type(type)
                 .title(title)
                 .content(content)
                 .isPinned(isPinned)

@@ -1,5 +1,6 @@
 package com.matchlog.be.service.document;
 
+import com.matchlog.be.constant.document.DocumentType;
 import com.matchlog.be.constant.participation.ParticipationRole;
 import com.matchlog.be.domain.document.Document;
 import com.matchlog.be.domain.match.Match;
@@ -68,6 +69,7 @@ public class DocumentService {
                                 team,
                                 player,
                                 match,
+                                DocumentType.GENERAL,
                                 request.getTitle(),
                                 request.getContent(),
                                 isPinned));

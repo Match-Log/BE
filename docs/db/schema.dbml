@@ -109,6 +109,11 @@ Enum pressing_trigger {
   OWN_HALF  // 자진영
 }
 
+Enum document_type {
+  GENERAL // 팀원이 자유 작성한 일반 글
+  VOTE    // 경기 생성 시 자동 생성되는 참석 투표 글
+}
+
 // ---------------------------------------------------------------------------
 // Core
 // ---------------------------------------------------------------------------
@@ -384,7 +389,8 @@ Table DOCUMENT {
   id bigint [pk, increment]
   teamId bigint [not null]
   playerId bigint [not null, note: '작성자']
-  matchId bigint [null, note: '경기 연결 게시글(후기 등). 경기 삭제 시 게시글 보존 위해 ON DELETE SET NULL']
+  matchId bigint [null, note: 'VOTE 타입 글의 대상 경기. 경기 삭제 시 투표 글도 함께 삭제(ON DELETE CASCADE)']
+  type document_type [not null, default: 'GENERAL', note: 'VOTE: 경기 생성 시 자동 생성. GENERAL: 팀원 자유 작성']
   isPinned boolean [not null, default: false, note: '상단 고정 여부. MANAGER만 제어 가능']
   title varchar(200) [not null]
   content text [not null]
@@ -466,7 +472,7 @@ Ref: PERSONAL_FEEDBACK.coachId > PLAYER.id [delete: set null] // 작성 코치 �
 
 Ref: DOCUMENT.teamId > TEAM.id [delete: cascade]
 Ref: DOCUMENT.playerId > PLAYER.id [delete: cascade]
-Ref: DOCUMENT.matchId > "MATCH".id [delete: set null] // 경기 삭제 시 게시글 보존
+Ref: DOCUMENT.matchId > "MATCH".id [delete: cascade] // 경기 삭제 시 연결된 투표 글 함께 삭제
 
 Ref: COMMENT.documentId > DOCUMENT.id [delete: cascade]
 Ref: COMMENT.playerId > PLAYER.id [delete: cascade]

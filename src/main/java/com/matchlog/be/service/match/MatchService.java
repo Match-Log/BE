@@ -1,5 +1,6 @@
 package com.matchlog.be.service.match;
 
+import com.matchlog.be.constant.document.DocumentType;
 import com.matchlog.be.domain.document.Document;
 import com.matchlog.be.domain.match.Match;
 import com.matchlog.be.domain.player.Player;
@@ -75,6 +76,7 @@ public class MatchService {
                                 team,
                                 player,
                                 match,
+                                DocumentType.VOTE,
                                 buildBoardTitle(match),
                                 "경기 참석 여부를 투표해주세요.",
                                 true));
