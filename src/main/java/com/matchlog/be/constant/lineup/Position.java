@@ -6,8 +6,6 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum Position {
-    GK("골키퍼", PositionCategory.GK),
-
     // Goalkeeper
     GK("골키퍼", PositionCategory.GK),
 

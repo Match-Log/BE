@@ -1,6 +1,7 @@
 package com.matchlog.be.dto.document.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.matchlog.be.constant.document.DocumentType;
 import com.matchlog.be.domain.document.Document;
 import com.matchlog.be.dto.comment.response.CommentResponseDto;
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ public class DocumentResponseDto {
     private String playerName;
     private String title;
     private String content;
+    private DocumentType type;
     private boolean isPinned;
     private Long matchId;
 
@@ -47,6 +49,7 @@ public class DocumentResponseDto {
                 .playerName(document.getPlayer().getUser().getName())
                 .title(document.getTitle())
                 .content(document.getContent())
+                .type(document.getType())
                 .isPinned(document.isPinned())
                 .matchId(document.getMatch() != null ? document.getMatch().getId() : null)
                 .createdAt(document.getCreatedAt())
