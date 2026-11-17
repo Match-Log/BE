@@ -26,6 +26,10 @@ public class MatchListItemResponseDto {
     private LocalDateTime matchDate;
 
     private String location;
+    private String locationAddress;
+    private Double latitude;
+    private Double longitude;
+    private String kakaoPlaceId;
     private HomeAway homeAway;
     private MatchType matchType;
     private Integer scoreHome;
@@ -39,6 +43,10 @@ public class MatchListItemResponseDto {
                 .opponent(match.getOpponent())
                 .matchDate(match.getMatchDate())
                 .location(match.getLocation())
+                .locationAddress(match.getLocationAddress())
+                .latitude(match.getLatitude())
+                .longitude(match.getLongitude())
+                .kakaoPlaceId(match.getKakaoPlaceId())
                 .homeAway(match.getHomeAway())
                 .matchType(match.getMatchType())
                 .scoreHome(match.getScoreHome())

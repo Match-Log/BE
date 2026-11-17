@@ -66,6 +66,10 @@ public class MatchService {
                                 request.getOpponent(),
                                 request.getMatchDate(),
                                 request.getLocation(),
+                                request.getLocationAddress(),
+                                request.getLatitude(),
+                                request.getLongitude(),
+                                request.getKakaoPlaceId(),
                                 request.getHomeAway(),
                                 request.getMatchType(),
                                 request.getMemo()));
@@ -142,10 +146,18 @@ public class MatchService {
         match.updateSchedule(
                 request.getOpponent(),
                 request.getMatchDate(),
-                request.getLocation(),
                 request.getHomeAway(),
                 request.getMatchType(),
                 request.getMemo());
+
+        if (request.getLocation() != null) {
+            match.changeLocation(
+                    request.getLocation(),
+                    request.getLocationAddress(),
+                    request.getLatitude(),
+                    request.getLongitude(),
+                    request.getKakaoPlaceId());
+        }
 
         if (request.getScoreHome() != null || request.getScoreAway() != null) {
             match.recordScore(request.getScoreHome(), request.getScoreAway());
