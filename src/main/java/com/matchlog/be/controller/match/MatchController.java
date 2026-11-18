@@ -55,7 +55,7 @@ public class MatchController {
     public ResponseEntity<UpdateMatchResponseDto> updateMatch(
             @AuthenticationPrincipal Long userId,
             @PathVariable Long matchId,
-            @RequestBody UpdateMatchRequestDto request) {
+            @Valid @RequestBody UpdateMatchRequestDto request) {
         return ResponseEntity.ok(matchService.updateMatch(matchId, userId, request));
     }
 

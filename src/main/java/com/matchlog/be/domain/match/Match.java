@@ -50,6 +50,16 @@ public class Match extends BaseTimeEntity {
     @Column(length = 200)
     private String location;
 
+    @Column(length = 255)
+    private String locationAddress;
+
+    private Double latitude;
+
+    private Double longitude;
+
+    @Column(length = 30)
+    private String kakaoPlaceId;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private HomeAway homeAway;
@@ -74,6 +84,10 @@ public class Match extends BaseTimeEntity {
             String opponent,
             LocalDateTime matchDate,
             String location,
+            String locationAddress,
+            Double latitude,
+            Double longitude,
+            String kakaoPlaceId,
             HomeAway homeAway,
             MatchType matchType,
             String memo) {
@@ -82,6 +96,10 @@ public class Match extends BaseTimeEntity {
                 .opponent(opponent)
                 .matchDate(matchDate)
                 .location(location)
+                .locationAddress(locationAddress)
+                .latitude(latitude)
+                .longitude(longitude)
+                .kakaoPlaceId(kakaoPlaceId)
                 .homeAway(homeAway)
                 .matchType(matchType)
                 .isFinished(false)
@@ -92,7 +110,6 @@ public class Match extends BaseTimeEntity {
     public void updateSchedule(
             String opponent,
             LocalDateTime matchDate,
-            String location,
             HomeAway homeAway,
             MatchType matchType,
             String memo) {
@@ -101,9 +118,6 @@ public class Match extends BaseTimeEntity {
         }
         if (matchDate != null) {
             this.matchDate = matchDate;
-        }
-        if (location != null) {
-            this.location = location;
         }
         if (homeAway != null) {
             this.homeAway = homeAway;
@@ -114,6 +128,20 @@ public class Match extends BaseTimeEntity {
         if (memo != null) {
             this.memo = memo;
         }
+    }
+
+    /** 장소 정보를 그룹 단위로 통째로 덮어쓴다. 검색 장소 → 직접 입력 장소로 바뀌는 경우 좌표/장소ID가 남지 않도록 부분 갱신하지 않는다. */
+    public void changeLocation(
+            String location,
+            String locationAddress,
+            Double latitude,
+            Double longitude,
+            String kakaoPlaceId) {
+        this.location = location;
+        this.locationAddress = locationAddress;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.kakaoPlaceId = kakaoPlaceId;
     }
 
     public void recordScore(Integer scoreHome, Integer scoreAway) {

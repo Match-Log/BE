@@ -27,6 +27,10 @@ public class CreateMatchResponseDto {
     private LocalDateTime matchDate;
 
     private String location;
+    private String locationAddress;
+    private Double latitude;
+    private Double longitude;
+    private String kakaoPlaceId;
     private HomeAway homeAway;
     private MatchType matchType;
     private boolean isFinished;
@@ -48,6 +52,10 @@ public class CreateMatchResponseDto {
                 .opponent(match.getOpponent())
                 .matchDate(match.getMatchDate())
                 .location(match.getLocation())
+                .locationAddress(match.getLocationAddress())
+                .latitude(match.getLatitude())
+                .longitude(match.getLongitude())
+                .kakaoPlaceId(match.getKakaoPlaceId())
                 .homeAway(match.getHomeAway())
                 .matchType(match.getMatchType())
                 .isFinished(match.isFinished())
