@@ -49,9 +49,7 @@ public class StatService {
         Match match = getMatch(matchId);
         teamAuthorizationService.requireMember(match.getTeam().getId(), currentPlayer.getId());
 
-        if (!match.isFinished()) {
-            throw new CustomException(MatchErrorCode.MATCH_NOT_FINISHED);
-        }
+        match.requireFinished();
 
         List<PlayerStat> stats = playerStatRepository.findStatsByMatchId(matchId);
 
@@ -78,9 +76,7 @@ public class StatService {
         Match match = getMatch(matchId);
         teamAuthorizationService.requireMember(match.getTeam().getId(), currentPlayer.getId());
 
-        if (!match.isFinished()) {
-            throw new CustomException(MatchErrorCode.MATCH_NOT_FINISHED);
-        }
+        match.requireFinished();
 
         if (!voteRepository.existsByMatch_IdAndPlayer_IdAndStatus(
                 matchId, playerId, VoteStatus.ATTEND)) {
@@ -116,9 +112,7 @@ public class StatService {
             throw new CustomException(CommonErrorCode.FORBIDDEN, "본인 스탯만 입력할 수 있습니다.");
         }
 
-        if (!match.isFinished()) {
-            throw new CustomException(MatchErrorCode.MATCH_NOT_FINISHED);
-        }
+        match.requireFinished("종료된 경기에만 스탯을 입력할 수 있습니다.");
 
         Player targetPlayer =
                 playerRepository

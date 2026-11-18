@@ -159,12 +159,11 @@ public class MatchService {
                     request.getKakaoPlaceId());
         }
 
-        if (request.getScoreHome() != null || request.getScoreAway() != null) {
+        boolean hasScore = request.getScoreHome() != null || request.getScoreAway() != null;
+        if (Boolean.TRUE.equals(request.getIsFinished()) && !match.isFinished()) {
+            match.finish(request.getScoreHome(), request.getScoreAway());
+        } else if (hasScore) {
             match.recordScore(request.getScoreHome(), request.getScoreAway());
-        }
-
-        if (Boolean.TRUE.equals(request.getIsFinished())) {
-            match.changeStatusAsFinished();
         }
 
         return UpdateMatchResponseDto.from(match);

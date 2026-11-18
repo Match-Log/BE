@@ -4,6 +4,8 @@ import com.matchlog.be.constant.match.HomeAway;
 import com.matchlog.be.constant.match.MatchType;
 import com.matchlog.be.domain.common.BaseTimeEntity;
 import com.matchlog.be.domain.team.Team;
+import com.matchlog.be.exception.CustomException;
+import com.matchlog.be.exception.constant.MatchErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -31,6 +33,8 @@ import org.hibernate.annotations.OnDeleteAction;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Builder
 public class Match extends BaseTimeEntity {
+
+    private static final String SCHEDULE_LOCKED_MESSAGE = "종료된 경기는 일정 정보를 수정할 수 없습니다.";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -113,6 +117,9 @@ public class Match extends BaseTimeEntity {
             HomeAway homeAway,
             MatchType matchType,
             String memo) {
+        if (opponent != null || matchDate != null || homeAway != null || matchType != null) {
+            requireNotFinished(SCHEDULE_LOCKED_MESSAGE);
+        }
         if (opponent != null) {
             this.opponent = opponent;
         }
@@ -137,6 +144,7 @@ public class Match extends BaseTimeEntity {
             Double latitude,
             Double longitude,
             String kakaoPlaceId) {
+        requireNotFinished(SCHEDULE_LOCKED_MESSAGE);
         this.location = location;
         this.locationAddress = locationAddress;
         this.latitude = latitude;
@@ -144,7 +152,28 @@ public class Match extends BaseTimeEntity {
         this.kakaoPlaceId = kakaoPlaceId;
     }
 
+    /** 종료된 경기의 스코어 정정. 종료 전 경기는 finish로만 스코어를 기록한다. */
     public void recordScore(Integer scoreHome, Integer scoreAway) {
+        requireFinished("종료된 경기에만 스코어를 입력할 수 있습니다.");
+        applyScore(scoreHome, scoreAway);
+    }
+
+    /** 경기 시작 시각이 지났고 홈/어웨이 스코어가 모두 있어야 종료할 수 있다. */
+    public void finish(Integer scoreHome, Integer scoreAway) {
+        requireNotFinished();
+        if (LocalDateTime.now().isBefore(this.matchDate)) {
+            throw new CustomException(MatchErrorCode.MATCH_NOT_STARTED);
+        }
+        Integer home = scoreHome != null ? scoreHome : this.scoreHome;
+        Integer away = scoreAway != null ? scoreAway : this.scoreAway;
+        if (home == null || away == null) {
+            throw new CustomException(MatchErrorCode.MATCH_SCORE_REQUIRED);
+        }
+        applyScore(home, away);
+        this.isFinished = true;
+    }
+
+    private void applyScore(Integer scoreHome, Integer scoreAway) {
         if (scoreHome != null) {
             this.scoreHome = scoreHome;
         }
@@ -153,8 +182,30 @@ public class Match extends BaseTimeEntity {
         }
     }
 
-    public void changeStatusAsFinished() {
-        this.isFinished = true;
+    /** 종료 후 단계(스탯, 피드백, MVP 등) 진입 전 검증. */
+    public void requireFinished() {
+        if (!this.isFinished) {
+            throw new CustomException(MatchErrorCode.MATCH_NOT_FINISHED);
+        }
+    }
+
+    public void requireFinished(String message) {
+        if (!this.isFinished) {
+            throw new CustomException(MatchErrorCode.MATCH_NOT_FINISHED, message);
+        }
+    }
+
+    /** 종료 전 단계(투표, 전술 등) 진입 전 검증. */
+    public void requireNotFinished() {
+        if (this.isFinished) {
+            throw new CustomException(MatchErrorCode.MATCH_ALREADY_FINISHED);
+        }
+    }
+
+    public void requireNotFinished(String message) {
+        if (this.isFinished) {
+            throw new CustomException(MatchErrorCode.MATCH_ALREADY_FINISHED, message);
+        }
     }
 
     public boolean isVoteDeadlinePassed() {

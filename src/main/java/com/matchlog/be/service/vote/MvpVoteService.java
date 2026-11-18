@@ -56,10 +56,7 @@ public class MvpVoteService {
 
         teamAuthorizationService.requireMember(match.getTeam().getId(), voter.getId());
 
-        if (!match.isFinished()) {
-            throw new CustomException(
-                    MatchErrorCode.MATCH_NOT_FINISHED, "종료된 경기에만 MVP 투표를 할 수 있습니다.");
-        }
+        match.requireFinished("종료된 경기에만 MVP 투표를 할 수 있습니다.");
 
         Player votedPlayer =
                 playerRepository
