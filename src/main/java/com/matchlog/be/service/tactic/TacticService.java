@@ -47,9 +47,7 @@ public class TacticService {
         teamAuthorizationService.requireManager(
                 match.getTeam().getId(), player.getId(), "전술 작성 권한이 없습니다. (MANAGER만 가능)");
 
-        if (match.isFinished()) {
-            throw new CustomException(MatchErrorCode.MATCH_ALREADY_FINISHED);
-        }
+        match.requireNotFinished();
 
         TeamTactic tactic =
                 teamTacticRepository
@@ -115,9 +113,7 @@ public class TacticService {
         teamAuthorizationService.requireManager(
                 match.getTeam().getId(), coach.getId(), "전술 작성 권한이 없습니다. (MANAGER만 가능)");
 
-        if (match.isFinished()) {
-            throw new CustomException(MatchErrorCode.MATCH_ALREADY_FINISHED);
-        }
+        match.requireNotFinished();
 
         Player targetPlayer =
                 playerRepository

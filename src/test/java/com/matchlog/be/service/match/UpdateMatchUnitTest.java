@@ -52,7 +52,7 @@ class UpdateMatchUnitTest {
                 .id(100L)
                 .team(team)
                 .opponent("서울 드래곤즈")
-                .matchDate(LocalDateTime.of(2099, 7, 14, 7, 0))
+                .matchDate(LocalDateTime.now().minusHours(2))
                 .homeAway(HomeAway.HOME)
                 .matchType(MatchType.SOCCER)
                 .isFinished(false)
@@ -136,5 +136,105 @@ class UpdateMatchUnitTest {
                         e ->
                                 assertThat(((CustomException) e).getErrorCode())
                                         .isEqualTo(MatchErrorCode.INVALID_MATCH_DATE));
+    }
+
+    private void givenManager(Match match) {
+        when(playerService.getCurrentPlayer(USER_ID)).thenReturn(Player.builder().id(9L).build());
+        when(matchRepository.findById(100L)).thenReturn(Optional.of(match));
+        doNothing().when(teamAuthorizationService).requireManager(eq(1L), eq(9L), anyString());
+    }
+
+    private void assertErrorCode(UpdateMatchRequestDto request, MatchErrorCode expected) {
+        assertThatThrownBy(() -> matchService.updateMatch(100L, USER_ID, request))
+                .isInstanceOf(CustomException.class)
+                .satisfies(
+                        e -> assertThat(((CustomException) e).getErrorCode()).isEqualTo(expected));
+    }
+
+    private Match finishedMatch(Team team) {
+        return Match.builder()
+                .id(100L)
+                .team(team)
+                .opponent("서울 드래곤즈")
+                .matchDate(LocalDateTime.now().minusDays(1))
+                .homeAway(HomeAway.HOME)
+                .matchType(MatchType.SOCCER)
+                .scoreHome(3)
+                .scoreAway(1)
+                .isFinished(true)
+                .build();
+    }
+
+    @Test
+    void 경기_시작_전에_종료하면_MATCH_NOT_STARTED_예외가_발생한다() {
+        Team team = Team.builder().id(1L).build();
+        Match match =
+                Match.builder()
+                        .id(100L)
+                        .team(team)
+                        .matchDate(LocalDateTime.now().plusDays(1))
+                        .isFinished(false)
+                        .build();
+        givenManager(match);
+
+        assertErrorCode(
+                UpdateMatchRequestDto.builder().scoreHome(3).scoreAway(1).isFinished(true).build(),
+                MatchErrorCode.MATCH_NOT_STARTED);
+        assertThat(match.isFinished()).isFalse();
+    }
+
+    @Test
+    void 스코어_없이_종료하면_MATCH_SCORE_REQUIRED_예외가_발생한다() {
+        Match match = finishableMatch(Team.builder().id(1L).build());
+        givenManager(match);
+
+        assertErrorCode(
+                UpdateMatchRequestDto.builder().scoreHome(3).isFinished(true).build(),
+                MatchErrorCode.MATCH_SCORE_REQUIRED);
+        assertThat(match.isFinished()).isFalse();
+    }
+
+    @Test
+    void 종료되지_않은_경기에_스코어만_입력하면_MATCH_NOT_FINISHED_예외가_발생한다() {
+        Match match = finishableMatch(Team.builder().id(1L).build());
+        givenManager(match);
+
+        assertErrorCode(
+                UpdateMatchRequestDto.builder().scoreHome(3).scoreAway(1).build(),
+                MatchErrorCode.MATCH_NOT_FINISHED);
+    }
+
+    @Test
+    void 종료된_경기의_일정을_수정하면_MATCH_ALREADY_FINISHED_예외가_발생한다() {
+        Match match = finishedMatch(Team.builder().id(1L).build());
+        givenManager(match);
+
+        assertErrorCode(
+                UpdateMatchRequestDto.builder().opponent("변경팀").build(),
+                MatchErrorCode.MATCH_ALREADY_FINISHED);
+        assertErrorCode(
+                UpdateMatchRequestDto.builder().location("다른 구장").build(),
+                MatchErrorCode.MATCH_ALREADY_FINISHED);
+    }
+
+    @Test
+    void 종료된_경기의_스코어와_메모는_수정할_수_있다() {
+        Match match = finishedMatch(Team.builder().id(1L).build());
+        givenManager(match);
+
+        UpdateMatchResponseDto response =
+                matchService.updateMatch(
+                        100L,
+                        USER_ID,
+                        UpdateMatchRequestDto.builder()
+                                .scoreHome(2)
+                                .scoreAway(2)
+                                .isFinished(true)
+                                .memo("무승부로 정정")
+                                .build());
+
+        assertThat(response.getScoreHome()).isEqualTo(2);
+        assertThat(response.getScoreAway()).isEqualTo(2);
+        assertThat(match.getMemo()).isEqualTo("무승부로 정정");
     }
 }

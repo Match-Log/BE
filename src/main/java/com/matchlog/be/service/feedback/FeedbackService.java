@@ -50,10 +50,7 @@ public class FeedbackService {
         teamAuthorizationService.requireManager(
                 match.getTeam().getId(), player.getId(), "피드백 작성 권한이 없습니다. (MANAGER만 가능)");
 
-        if (!match.isFinished()) {
-            throw new CustomException(
-                    MatchErrorCode.MATCH_NOT_FINISHED, "종료된 경기에만 피드백을 작성할 수 있습니다.");
-        }
+        match.requireFinished("종료된 경기에만 피드백을 작성할 수 있습니다.");
 
         TeamFeedback feedback =
                 teamFeedbackRepository
@@ -79,10 +76,7 @@ public class FeedbackService {
 
         teamAuthorizationService.requireMember(match.getTeam().getId(), player.getId());
 
-        if (!match.isFinished()) {
-            throw new CustomException(
-                    MatchErrorCode.MATCH_NOT_FINISHED, "종료된 경기에만 피드백을 조회할 수 있습니다.");
-        }
+        match.requireFinished("종료된 경기에만 피드백을 조회할 수 있습니다.");
 
         TeamFeedback feedback =
                 teamFeedbackRepository
@@ -102,10 +96,7 @@ public class FeedbackService {
         teamAuthorizationService.requireManager(
                 match.getTeam().getId(), coach.getId(), "피드백 작성 권한이 없습니다. (MANAGER만 가능)");
 
-        if (!match.isFinished()) {
-            throw new CustomException(
-                    MatchErrorCode.MATCH_NOT_FINISHED, "종료된 경기에만 피드백을 작성할 수 있습니다.");
-        }
+        match.requireFinished("종료된 경기에만 피드백을 작성할 수 있습니다.");
 
         Player targetPlayer =
                 playerRepository

@@ -45,9 +45,7 @@ public class VoteService {
 
         teamAuthorizationService.requireMember(match.getTeam().getId(), player.getId());
 
-        if (match.isFinished()) {
-            throw new CustomException(MatchErrorCode.MATCH_ALREADY_FINISHED);
-        }
+        match.requireNotFinished();
 
         if (match.isVoteDeadlinePassed()) {
             throw new CustomException(MatchErrorCode.VOTE_DEADLINE_PASSED);

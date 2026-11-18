@@ -11,8 +11,11 @@ public enum MatchErrorCode implements ErrorCode {
     VOTE_NOT_FOUND(HttpStatus.NOT_FOUND, "VOTE_NOT_FOUND", "투표 기록이 없습니다. 먼저 투표해주세요."),
     INVALID_MATCH_DATE(HttpStatus.BAD_REQUEST, "INVALID_MATCH_DATE", "경기 날짜는 현재 이후여야 합니다."),
     MATCH_ALREADY_EXISTS(HttpStatus.CONFLICT, "MATCH_ALREADY_EXISTS", "해당 날짜에 이미 경기가 존재합니다."),
-    MATCH_ALREADY_FINISHED(HttpStatus.CONFLICT, "MATCH_ALREADY_FINISHED", "종료된 경기는 수정할 수 없습니다."),
-    MATCH_NOT_FINISHED(HttpStatus.CONFLICT, "MATCH_NOT_FINISHED", "종료된 경기에만 스탯을 입력할 수 있습니다."),
+    MATCH_ALREADY_FINISHED(HttpStatus.CONFLICT, "MATCH_ALREADY_FINISHED", "이미 종료된 경기입니다."),
+    MATCH_NOT_FINISHED(HttpStatus.CONFLICT, "MATCH_NOT_FINISHED", "종료된 경기에서만 가능합니다."),
+    MATCH_NOT_STARTED(HttpStatus.CONFLICT, "MATCH_NOT_STARTED", "경기 시작 전에는 종료할 수 없습니다."),
+    MATCH_SCORE_REQUIRED(
+            HttpStatus.BAD_REQUEST, "MATCH_SCORE_REQUIRED", "경기를 종료하려면 홈/어웨이 스코어를 모두 입력해야 합니다."),
     VOTE_DEADLINE_PASSED(HttpStatus.CONFLICT, "VOTE_DEADLINE_PASSED", "경기 시작 1시간 전부터 투표할 수 없습니다."),
     PLAYER_NOT_ATTENDED(
             HttpStatus.CONFLICT, "PLAYER_NOT_ATTENDED", "해당 경기에 출석 확정된 선수에게만 작성할 수 있습니다.");
