@@ -16,6 +16,7 @@ import com.matchlog.be.constant.participation.ParticipationRole;
 import com.matchlog.be.domain.participation.Participation;
 import com.matchlog.be.domain.player.Player;
 import com.matchlog.be.domain.team.Team;
+import com.matchlog.be.domain.team.TeamRoleAssignment;
 import com.matchlog.be.exception.CustomException;
 import com.matchlog.be.exception.constant.CommonErrorCode;
 import com.matchlog.be.exception.constant.ParticipationErrorCode;
@@ -23,6 +24,7 @@ import com.matchlog.be.exception.constant.TeamErrorCode;
 import com.matchlog.be.repository.LineupSpotRepository;
 import com.matchlog.be.repository.ParticipationRepository;
 import com.matchlog.be.repository.TeamRepository;
+import com.matchlog.be.repository.TeamRoleAssignmentRepository;
 import com.matchlog.be.repository.VoteRepository;
 import com.matchlog.be.service.player.PlayerService;
 import com.matchlog.be.service.team.TeamAuthorizationService;
@@ -44,6 +46,7 @@ class RemoveFromRosterUnitTest {
 
     @Mock private ParticipationRepository participationRepository;
     @Mock private TeamRepository teamRepository;
+    @Mock private TeamRoleAssignmentRepository teamRoleAssignmentRepository;
     @Mock private LineupSpotRepository lineupSpotRepository;
     @Mock private VoteRepository voteRepository;
     @Mock private PlayerService playerService;
@@ -57,12 +60,15 @@ class RemoveFromRosterUnitTest {
         Team team = Team.builder().id(TEAM_ID).build();
         Participation targetParticipation =
                 Participation.create(target, team, ParticipationRole.PLAYER);
+        TeamRoleAssignment assignment = TeamRoleAssignment.create(team);
 
         when(playerService.getCurrentPlayer(USER_ID)).thenReturn(manager);
         when(teamRepository.existsById(TEAM_ID)).thenReturn(true);
         doNothing().when(teamAuthorizationService).requireManager(eq(TEAM_ID), eq(9L), anyString());
         when(participationRepository.findByTeam_IdAndPlayer_Id(TEAM_ID, 10L))
                 .thenReturn(Optional.of(targetParticipation));
+        when(teamRoleAssignmentRepository.findByTeam_Id(TEAM_ID))
+                .thenReturn(Optional.of(assignment));
 
         participationService.removeFromRoster(USER_ID, TEAM_ID, 10L);
 
@@ -72,6 +78,7 @@ class RemoveFromRosterUnitTest {
         verify(voteRepository, times(1))
                 .deleteByPlayerIdAndTeamId(
                         eq(10L), eq(TEAM_ID), any(java.time.LocalDateTime.class));
+        verify(teamRoleAssignmentRepository, times(1)).findByTeam_Id(TEAM_ID);
         verify(participationRepository, times(1)).delete(targetParticipation);
     }
 

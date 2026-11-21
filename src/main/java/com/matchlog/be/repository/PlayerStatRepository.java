@@ -2,6 +2,7 @@ package com.matchlog.be.repository;
 
 import com.matchlog.be.domain.stat.PlayerStat;
 import com.matchlog.be.repository.projection.PlayerStatAggregate;
+import com.matchlog.be.repository.projection.TeamPlayerStatRow;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -39,6 +40,23 @@ public interface PlayerStatRepository extends JpaRepository<PlayerStat, Long> {
     PlayerStatAggregate aggregateByPlayerAndPeriod(
             @Param("teamId") Long teamId,
             @Param("playerId") Long playerId,
+            @Param("from") LocalDateTime from,
+            @Param("to") LocalDateTime to);
+
+    // [GET /api/v1/teams/{teamId}/player-stats] 팀 전체 선수 누적 스탯 집계 — GROUP BY player.id
+    @Query(
+            "SELECT ps.player.id AS playerId, COUNT(ps) AS matchCount, "
+                    + "COALESCE(SUM(ps.goals), 0) AS goals, "
+                    + "COALESCE(SUM(ps.assists), 0) AS assists, "
+                    + "SUM(ps.saves) AS saves, "
+                    + "SUM(CASE WHEN ps.cleanSheet = true THEN 1 ELSE 0 END) AS cleanSheetCount, "
+                    + "SUM(CASE WHEN ps.isMvp = true THEN 1 ELSE 0 END) AS mvpCount "
+                    + "FROM PlayerStat ps JOIN ps.match m "
+                    + "WHERE m.team.id = :teamId "
+                    + "AND m.matchDate >= :from AND m.matchDate < :to "
+                    + "GROUP BY ps.player.id")
+    List<TeamPlayerStatRow> aggregateByTeamAndPeriod(
+            @Param("teamId") Long teamId,
             @Param("from") LocalDateTime from,
             @Param("to") LocalDateTime to);
 }
