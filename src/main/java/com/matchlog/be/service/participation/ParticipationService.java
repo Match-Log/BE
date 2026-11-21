@@ -16,6 +16,7 @@ import com.matchlog.be.exception.constant.TeamErrorCode;
 import com.matchlog.be.repository.LineupSpotRepository;
 import com.matchlog.be.repository.ParticipationRepository;
 import com.matchlog.be.repository.TeamRepository;
+import com.matchlog.be.repository.TeamRoleAssignmentRepository;
 import com.matchlog.be.repository.VoteRepository;
 import com.matchlog.be.service.player.PlayerService;
 import com.matchlog.be.service.team.TeamAuthorizationService;
@@ -31,6 +32,7 @@ public class ParticipationService {
 
     private final ParticipationRepository participationRepository;
     private final TeamRepository teamRepository;
+    private final TeamRoleAssignmentRepository teamRoleAssignmentRepository;
     private final LineupSpotRepository lineupSpotRepository;
     private final VoteRepository voteRepository;
     private final PlayerService playerService;
@@ -107,7 +109,41 @@ public class ParticipationService {
         LocalDateTime now = LocalDateTime.now();
         lineupSpotRepository.deleteByPlayerIdAndTeamId(targetPlayerId, teamId, now);
         voteRepository.deleteByPlayerIdAndTeamId(targetPlayerId, teamId, now);
+        clearRoleAssignmentSlots(teamId, target.getId());
         participationRepository.delete(target);
+    }
+
+    @Transactional
+    public void leaveTeam(Long userId, Long teamId) {
+        Player player = playerService.getCurrentPlayer(userId);
+
+        if (!teamRepository.existsById(teamId)) {
+            throw new CustomException(TeamErrorCode.TEAM_NOT_FOUND);
+        }
+
+        Participation participation =
+                participationRepository
+                        .findByTeam_IdAndPlayer_Id(teamId, player.getId())
+                        .orElseThrow(
+                                () ->
+                                        new CustomException(
+                                                CommonErrorCode.FORBIDDEN, "해당 팀에 소속되어 있지 않습니다."));
+
+        if (participation.getRole() == ParticipationRole.MANAGER) {
+            throw new CustomException(TeamErrorCode.MANAGER_CANNOT_LEAVE);
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        lineupSpotRepository.deleteByPlayerIdAndTeamId(player.getId(), teamId, now);
+        voteRepository.deleteByPlayerIdAndTeamId(player.getId(), teamId, now);
+        clearRoleAssignmentSlots(teamId, participation.getId());
+        participationRepository.delete(participation);
+    }
+
+    private void clearRoleAssignmentSlots(Long teamId, Long participationId) {
+        teamRoleAssignmentRepository
+                .findByTeam_Id(teamId)
+                .ifPresent(a -> a.clearSlotsForParticipation(participationId));
     }
 
     @Transactional

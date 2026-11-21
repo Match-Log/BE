@@ -12,7 +12,11 @@ public enum TeamErrorCode implements ErrorCode {
     MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "MEMBER_NOT_FOUND", "해당 팀에 존재하지 않는 멤버입니다."),
     TEAM_LIMIT_EXCEEDED(HttpStatus.CONFLICT, "TEAM_LIMIT_EXCEEDED", "최대 2개 팀까지 소속될 수 있습니다."),
     LAST_MANAGER_CANNOT_BE_REMOVED(
-            HttpStatus.CONFLICT, "LAST_MANAGER_CANNOT_BE_REMOVED", "팀의 마지막 MANAGER는 제외할 수 없습니다.");
+            HttpStatus.CONFLICT, "LAST_MANAGER_CANNOT_BE_REMOVED", "팀의 마지막 MANAGER는 제외할 수 없습니다."),
+    MANAGER_CANNOT_LEAVE(
+            HttpStatus.CONFLICT,
+            "MANAGER_CANNOT_LEAVE",
+            "매니저는 탈퇴할 수 없습니다. 다른 멤버에게 매니저를 위임하거나 팀을 삭제한 뒤 탈퇴하세요.");
 
     private final HttpStatus status;
     private final String code;
