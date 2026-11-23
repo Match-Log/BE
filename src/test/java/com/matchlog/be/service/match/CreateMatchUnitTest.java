@@ -28,6 +28,7 @@ import com.matchlog.be.repository.TeamRepository;
 import com.matchlog.be.service.player.PlayerService;
 import com.matchlog.be.service.team.TeamAuthorizationService;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
@@ -48,6 +50,7 @@ class CreateMatchUnitTest {
     @Mock private DocumentRepository documentRepository;
     @Mock private PlayerService playerService;
     @Mock private TeamAuthorizationService teamAuthorizationService;
+    @Mock private ApplicationEventPublisher eventPublisher;
     @InjectMocks private MatchService matchService;
 
     @Test
@@ -97,6 +100,7 @@ class CreateMatchUnitTest {
                                     .isPinned(saved.isPinned())
                                     .build();
                         });
+        when(participationRepository.findRosterByTeamId(1L)).thenReturn(List.of());
 
         CreateMatchResponseDto response = matchService.createMatch(1L, USER_ID, request);
 
