@@ -9,6 +9,7 @@ import com.matchlog.be.dto.participation.request.UpdateParticipationRequestDto;
 import com.matchlog.be.dto.participation.response.JoinTeamResponseDto;
 import com.matchlog.be.dto.participation.response.RosterItemResponseDto;
 import com.matchlog.be.dto.participation.response.UpdateParticipationResponseDto;
+import com.matchlog.be.event.PlayerJoinedTeamEvent;
 import com.matchlog.be.exception.CustomException;
 import com.matchlog.be.exception.constant.CommonErrorCode;
 import com.matchlog.be.exception.constant.ParticipationErrorCode;
@@ -23,6 +24,7 @@ import com.matchlog.be.service.team.TeamAuthorizationService;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +39,7 @@ public class ParticipationService {
     private final VoteRepository voteRepository;
     private final PlayerService playerService;
     private final TeamAuthorizationService teamAuthorizationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public JoinTeamResponseDto joinTeamByInviteCode(Long userId, JoinTeamRequestDto request) {
@@ -57,6 +60,19 @@ public class ParticipationService {
         Participation participation =
                 participationRepository.save(
                         Participation.create(player, team, ParticipationRole.PLAYER));
+
+        List<Long> existingMemberUserIds =
+                participationRepository.findRosterByTeamId(team.getId()).stream()
+                        .filter(p -> !p.getPlayer().getId().equals(player.getId()))
+                        .map(p -> p.getPlayer().getUser().getId())
+                        .toList();
+
+        eventPublisher.publishEvent(
+                new PlayerJoinedTeamEvent(
+                        team.getId(),
+                        team.getName(),
+                        player.getUser().getName(),
+                        existingMemberUserIds));
 
         return JoinTeamResponseDto.from(participation);
     }

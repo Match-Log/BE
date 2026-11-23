@@ -11,6 +11,7 @@ import com.matchlog.be.dto.match.response.CreateMatchResponseDto;
 import com.matchlog.be.dto.match.response.MatchListItemResponseDto;
 import com.matchlog.be.dto.match.response.MatchResponseDto;
 import com.matchlog.be.dto.match.response.UpdateMatchResponseDto;
+import com.matchlog.be.event.MatchCreatedEvent;
 import com.matchlog.be.exception.CustomException;
 import com.matchlog.be.exception.constant.CommonErrorCode;
 import com.matchlog.be.exception.constant.MatchErrorCode;
@@ -24,6 +25,7 @@ import com.matchlog.be.service.team.TeamAuthorizationService;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +39,7 @@ public class MatchService {
     private final DocumentRepository documentRepository;
     private final PlayerService playerService;
     private final TeamAuthorizationService teamAuthorizationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public CreateMatchResponseDto createMatch(
@@ -84,6 +87,19 @@ public class MatchService {
                                 buildBoardTitle(match),
                                 "경기 참석 여부를 투표해주세요.",
                                 true));
+
+        List<Long> memberUserIds =
+                participationRepository.findRosterByTeamId(teamId).stream()
+                        .map(p -> p.getPlayer().getUser().getId())
+                        .toList();
+        eventPublisher.publishEvent(
+                new MatchCreatedEvent(
+                        match.getId(),
+                        team.getId(),
+                        team.getName(),
+                        match.getOpponent(),
+                        match.getMatchDate(),
+                        memberUserIds));
 
         return CreateMatchResponseDto.from(match, board.getId(), board.getTitle());
     }

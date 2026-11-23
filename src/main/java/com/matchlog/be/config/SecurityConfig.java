@@ -3,6 +3,7 @@ package com.matchlog.be.config;
 import com.matchlog.be.exception.constant.CommonErrorCode;
 import com.matchlog.be.util.jwt.JwtAuthFilter;
 import com.matchlog.be.util.jwt.JwtTokenProvider;
+import jakarta.servlet.DispatcherType;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
@@ -71,7 +72,9 @@ public class SecurityConfig {
                         session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
                         auth ->
-                                auth.requestMatchers(
+                                auth.dispatcherTypeMatchers(DispatcherType.ASYNC)
+                                        .permitAll()
+                                        .requestMatchers(
                                                 "/api/v1/auth/signup",
                                                 "/api/v1/auth/login",
                                                 "/api/v1/auth/oauth/**",

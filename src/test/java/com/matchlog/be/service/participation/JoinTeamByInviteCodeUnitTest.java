@@ -10,6 +10,7 @@ import com.matchlog.be.constant.participation.ParticipationRole;
 import com.matchlog.be.domain.participation.Participation;
 import com.matchlog.be.domain.player.Player;
 import com.matchlog.be.domain.team.Team;
+import com.matchlog.be.domain.user.User;
 import com.matchlog.be.dto.participation.request.JoinTeamRequestDto;
 import com.matchlog.be.dto.participation.response.JoinTeamResponseDto;
 import com.matchlog.be.exception.CustomException;
@@ -18,6 +19,7 @@ import com.matchlog.be.repository.ParticipationRepository;
 import com.matchlog.be.repository.TeamRepository;
 import com.matchlog.be.service.player.PlayerService;
 import com.matchlog.be.service.team.TeamAuthorizationService;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -25,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 @Tag("unit")
 @ExtendWith(MockitoExtension.class)
@@ -34,13 +37,15 @@ class JoinTeamByInviteCodeUnitTest {
     @Mock private TeamRepository teamRepository;
     @Mock private PlayerService playerService;
     @Mock private TeamAuthorizationService teamAuthorizationService;
+    @Mock private ApplicationEventPublisher eventPublisher;
     @InjectMocks private ParticipationService participationService;
 
     private static final Long USER_ID = 1L;
 
     @Test
     void 유효한_초대코드면_PLAYER_역할로_가입에_성공한다() {
-        Player player = Player.builder().id(9L).build();
+        User user = User.builder().id(1L).name("정수혁").build();
+        Player player = Player.builder().id(9L).user(user).build();
         Team team = Team.builder().id(1L).name("FC 한강불사조").inviteCode("HK4829").build();
         JoinTeamRequestDto request = JoinTeamRequestDto.builder().inviteCode("HK4829").build();
 
@@ -60,6 +65,7 @@ class JoinTeamByInviteCodeUnitTest {
                                     .updatedAt(saved.getUpdatedAt())
                                     .build();
                         });
+        when(participationRepository.findRosterByTeamId(1L)).thenReturn(List.of());
 
         JoinTeamResponseDto response = participationService.joinTeamByInviteCode(USER_ID, request);
 
