@@ -114,6 +114,53 @@ Enum document_type {
   VOTE    // 경기 생성 시 자동 생성되는 참석 투표 글
 }
 
+Enum notification_type {
+  TODAY_MATCH           // 오늘 경기 알림 (스케줄러, 매일 오전 9시)
+  MATCH_REVIEW_REMINDER // 경기 종료 2시간 후 피드백 작성 독려 (스케줄러, 10분 주기)
+  PLAYER_JOINED         // 신규 팀원 가입 (이벤트 리스너)
+}
+
+Enum device_type {
+  IOS
+  ANDROID
+  WEB
+}
+
+// ---------------------------------------------------------------------------
+// Notification
+// ---------------------------------------------------------------------------
+Table NOTIFICATION {
+  id          bigint   [pk, increment]
+  userId      bigint   [not null]
+  type        notification_type [not null]
+  title       varchar(100) [not null]
+  body        varchar(300) [not null]
+  isRead      boolean  [not null, default: false]
+  referenceId bigint   [null, note: 'matchId 또는 teamId (알림 종류에 따라 의미 다름)']
+  createdAt   datetime [not null]
+  updatedAt   datetime [not null]
+
+  indexes {
+    (userId, isRead, createdAt) [name: 'idx_notification_user_unread'] // 미읽음 알림 목록 조회
+    (referenceId, type)         [name: 'idx_notification_ref_type']    // 중복 알림 방지 체크
+  }
+}
+
+Table USER_DEVICE_TOKEN {
+  id         bigint   [pk, increment]
+  userId     bigint   [not null]
+  fcmToken   varchar(500) [not null]
+  deviceType device_type  [not null]
+  createdAt  datetime [not null]
+  updatedAt  datetime [not null]
+
+  indexes {
+    (userId, deviceType) [unique, name: 'uk_device_token_user_device'] // 디바이스 타입별 토큰 1개
+  }
+
+  Note: '앱 전환 시 FCM 토큰 저장용. 현재는 테이블만 준비, 실제 발송은 FcmNotificationSender 구현 후 활성화.'
+}
+
 // ---------------------------------------------------------------------------
 // Core
 // ---------------------------------------------------------------------------
@@ -476,6 +523,9 @@ Ref: DOCUMENT.matchId > "MATCH".id [delete: cascade] // 경기 삭제 시 연결
 
 Ref: COMMENT.documentId > DOCUMENT.id [delete: cascade]
 Ref: COMMENT.playerId > PLAYER.id [delete: cascade]
+
+Ref: NOTIFICATION.userId > "USER".id [delete: cascade]
+Ref: USER_DEVICE_TOKEN.userId > "USER".id [delete: cascade]
 
 // ---------------------------------------------------------------------------
 // 설계 노트 (정합성 관련 핵심 결정)

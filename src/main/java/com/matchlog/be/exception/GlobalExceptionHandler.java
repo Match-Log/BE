@@ -9,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.async.AsyncRequestNotUsableException;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @Slf4j
@@ -52,6 +53,11 @@ public class GlobalExceptionHandler {
         log.warn("MissingServletRequestParameter: {}", e.getMessage());
         return ResponseEntity.status(CommonErrorCode.INVALID_REQUEST_BODY.getStatus())
                 .body(ErrorResponse.of(CommonErrorCode.INVALID_REQUEST_BODY));
+    }
+
+    @ExceptionHandler(AsyncRequestNotUsableException.class)
+    public void handleAsyncRequestNotUsable(AsyncRequestNotUsableException e) {
+        log.debug("SSE client disconnected: {}", e.getMessage());
     }
 
     @ExceptionHandler(Exception.class)

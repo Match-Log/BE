@@ -10,7 +10,7 @@ spring:
     open-in-view: false
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
 
 jwt:
   secret: ${JWT_SECRET}
