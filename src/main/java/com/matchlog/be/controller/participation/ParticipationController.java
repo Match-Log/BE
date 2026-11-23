@@ -50,6 +50,13 @@ public class ParticipationController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/{teamId}/members/me")
+    public ResponseEntity<Void> leaveTeam(
+            @AuthenticationPrincipal Long userId, @PathVariable Long teamId) {
+        participationService.leaveTeam(userId, teamId);
+        return ResponseEntity.noContent().build();
+    }
+
     @PatchMapping("/{teamId}/players/{playerId}")
     public ResponseEntity<UpdateParticipationResponseDto> updateParticipation(
             @AuthenticationPrincipal Long userId,
